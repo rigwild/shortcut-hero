@@ -1,0 +1,19 @@
+[package]
+name = "shortcut-gpt"
+version = "0.1.0"
+edition = "2021"
+authors = ["rigwild <me@rigwild.dev>"]
+repository = "https://github.com/rigwild/shortcut-gpt"
+homepage = "https://github.com/rigwild/shortcut-gpt"
+keywords = ["shortcut", "gpt", "chatgpt", "openai", "cross-platform"]
+#categories = ["command-line-utilities"]
+description = ""
+license = "MIT"
+
+[dependencies]
+anyhow = "1.0.70"
+inputbot = { git = "https://github.com/obv-mikhail/InputBot", branch = "develop" }
+rand = "0.8.5"
+serde = { version = "1.0", features = ["derive"] }
+reqwest = { version = "0.11", features = ["json", "blocking"] }
+serde_json = "1.0.96"

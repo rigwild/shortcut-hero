@@ -1,0 +1,12 @@
+{
+  "openai_api_key": "sk-...",
+  "key_shortcuts": [
+    {
+      "key": "a",
+      "action": {
+        "name": "AskChatGPT",
+        "pre_prompt": "Talk like a 2 year old"
+      }
+    }
+  ]
+}
