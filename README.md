@@ -121,13 +121,23 @@ Print the configuration and the provided input. Returns input.
 }
 ```
 
+### Clear Input
+
+Remove the input, useful if the next action does not require an input. Returns empty string.
+
+```json
+{
+  "name": "clear_input"
+}
+```
+
 ### Fixed Input
 
 Provide some input directly from the configuration file. Returns input.
 
 ```json
 {
-  "name": "debug",
+  "name": "fixed_input",
   "input": "Hello world!"
 }
 ```
@@ -175,6 +185,22 @@ Write the input to the clipboard. Returns input.
 }
 ```
 
+### Spawn
+
+Spawn a system command. The input will be provided as the last argument. Returns the result.
+
+Parameter `args` is optional, default value is empty list.
+
+The following example will pass the input as a script for Node.js to execute `node -e "console.log('Hello world!')"`.
+
+```json
+{
+  "name": "spawn",
+  "command": "/usr/bin/node",
+  "args": ["-e"]
+}
+```
+
 ### Ask ChatGPT
 
 Get the provided input and ask ChatGPT to answer. You can provide a pre-prompt to ask a specific action for this shortcut.
@@ -208,7 +234,6 @@ Be creative! ✌️
 - Open a URL in the default browser
 - Read the content of a file
 - Write the input to a file
-- Run a program using the command-line and pass the input as an argument
 - Star this GitHub repository (😉)
 
 ### License
