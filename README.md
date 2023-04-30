@@ -2,12 +2,28 @@
 
 Bind keyboard shortcuts to any actions
 
-## Install
+## Releases
+
+See [releases](/rigwild/apidoc-markdown/releases) for pre-built binaries.
+
+For debian or ubuntu based distributions, you need the following dependencies.
+
+```sh
+# Required for https://github.com/obv-mikhail/InputBot#build-dependencies
+sudo apt install libx11-dev libxtst-dev libudev-dev libinput-dev
+```
+
+## Build from sources
 
 ### Windows
 
 ```sh
-cargo install shortcut-hero
+git clone git@github.com:rigwild/shortcut-hero.git
+cd shortcut-hero
+cargo build --release
+
+# If you have UPX, to compress the executable
+upx --best --lzma -o target/release/shortcut-hero.upx.exe target/release/shortcut-hero.exe
 ```
 
 ### Debian or Ubuntu based distributions
@@ -16,7 +32,12 @@ cargo install shortcut-hero
 # Required for https://github.com/obv-mikhail/InputBot#build-dependencies
 sudo apt install libx11-dev libxtst-dev libudev-dev libinput-dev
 
-cargo install shortcut-hero
+git clone git@github.com:rigwild/shortcut-hero.git
+cd shortcut-hero
+cargo build --release
+
+# If you have UPX, to compress the executable
+upx --best --lzma -o target/release/shortcut-hero.upx.bin target/release/shortcut-hero
 ```
 
 ## Configuration

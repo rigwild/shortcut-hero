@@ -56,7 +56,6 @@ fn register_hotkeys(config: &Config) {
                 let first = keys.clone().nth(0).unwrap();
                 let rest = keys.clone().skip(1);
                 first.0.bind(move || {
-                    println!("connard {}", rand::random::<u32>());
                     let all_pressed = rest.clone().all(|x| x.0.is_pressed());
                     if all_pressed {
                         run_shortcut(&shortcut, &config)
