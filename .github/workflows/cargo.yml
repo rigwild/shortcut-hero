@@ -11,6 +11,8 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
+      - name: Install build dependencies
+        run: sudo apt install libx11-dev libxtst-dev libudev-dev libinput-dev
       - uses: actions-rs/cargo@v1
         with:
           command: build

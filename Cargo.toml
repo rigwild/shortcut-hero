@@ -1,5 +1,6 @@
 [package]
 name = "shortcut-hero"
+description = "Bind keyboard shortcuts to any actions"
 version = "0.1.0"
 edition = "2021"
 authors = ["rigwild <me@rigwild.dev>"]
@@ -7,7 +8,6 @@ repository = "https://github.com/rigwild/shortcut-hero"
 homepage = "https://github.com/rigwild/shortcut-hero"
 keywords = ["shortcut", "keyboard", "chatgpt", "openai", "cross-platform"]
 #categories = ["command-line-utilities"]
-description = ""
 license = "MIT"
 
 [dependencies]
@@ -17,5 +17,5 @@ rand = "0.8.5"
 serde = { version = "1.0", features = ["derive"] }
 reqwest = { version = "0.11", features = ["json", "blocking"] }
 serde_json = "1.0.96"
-native-dialog = { version = "0.6.3", featuresd = ["windows_dpi_awareness", "windows_visual_styles"] }
+native-dialog = { version = "0.6.3", features = ["windows_dpi_awareness", "windows_visual_styles"] }
 copypasta = "0.8.2"

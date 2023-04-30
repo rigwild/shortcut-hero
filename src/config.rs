@@ -4,10 +4,11 @@ use std::path::PathBuf;
 use std::{env, fs};
 
 use anyhow::{anyhow, Context};
+use inputbot::KeybdKey;
 use serde::{Deserialize, Serialize};
 
 use crate::actions::Action;
-use crate::hotkey::Shortcut;
+use crate::hotkey::{KeyboardKey, Shortcut};
 
 const CONFIG_FILE_NAME: &'static str = "shortcut-hero.json";
 
@@ -75,8 +76,20 @@ fn assert_config_valid(config: &Config) {
 
 fn init_config_file() {
     save_config_to_file(&Config {
-        openai_api_key: "".to_string(),
-        keyboard_shortcuts: Vec::new(),
+        openai_api_key: "sk-...".to_string(),
+        keyboard_shortcuts: vec![Shortcut::new(
+            std::collections::HashSet::from([
+                KeyboardKey(KeybdKey::LControlKey),
+                KeyboardKey(KeybdKey::BKey),
+            ]),
+            vec![
+                Action::ReadClipboard,
+                Action::Debug,
+                Action::ShowDialog {
+                    title: "Hello World!".to_string(),
+                },
+            ],
+        )],
     })
     .unwrap();
 }
