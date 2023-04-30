@@ -4,11 +4,11 @@ use reqwest::blocking::Client as HttpClient;
 use serde::{Deserialize, Serialize};
 use std::env;
 
-pub struct AskChatGPTAction;
+pub struct OpenAIAction;
 
-impl AskChatGPTAction {
-    pub fn run(config: &Config, pre_prompt: &str, prompt: &str) -> anyhow::Result<String> {
-        ask_chatgpt(pre_prompt,prompt, config.openai_api_key.as_str())
+impl OpenAIAction {
+    pub fn ask_chat_gpt(config: &Config, pre_prompt: &str, prompt: &str) -> anyhow::Result<String> {
+        ask_chatgpt(pre_prompt, prompt, config.openai_api_key.as_str())
     }
 }
 
@@ -55,6 +55,7 @@ fn request_chatgpt_api(messages: Vec<Message>, api_key: &str) -> anyhow::Result<
 
 #[derive(Debug, Serialize)]
 #[serde(tag = "role", content = "content", rename_all = "lowercase")]
+#[allow(dead_code)]
 pub enum Message<'a> {
     System(&'a str),
     Assistant(&'a str),

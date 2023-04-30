@@ -1,26 +1,20 @@
-use crate::actions::Action;
 use anyhow::{anyhow, Context};
 use serde::{Deserialize, Serialize};
 use std::fs::File;
 use std::io::prelude::*;
 use std::path::PathBuf;
 use std::{env, fs};
+use crate::hotkey::{Shortcut};
 
 const CONFIG_FILE_NAME: &'static str = "shortcut-gpt.json";
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Config {
     #[serde(default)]
     pub openai_api_key: String,
 
     #[serde(default)]
     pub keyboard_shortcuts: Vec<Shortcut>,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Shortcut {
-    pub key: String,
-    pub action: Action,
 }
 
 impl Config {

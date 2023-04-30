@@ -1,11 +1,11 @@
 [package]
-name = "shortcut-gpt"
+name = "shortcut-hero"
 version = "0.1.0"
 edition = "2021"
 authors = ["rigwild <me@rigwild.dev>"]
 repository = "https://github.com/rigwild/shortcut-gpt"
 homepage = "https://github.com/rigwild/shortcut-gpt"
-keywords = ["shortcut", "gpt", "chatgpt", "openai", "cross-platform"]
+keywords = ["shortcut", "keyboard", "chatgpt", "openai", "cross-platform"]
 #categories = ["command-line-utilities"]
 description = ""
 license = "MIT"
@@ -17,3 +17,4 @@ rand = "0.8.5"
 serde = { version = "1.0", features = ["derive"] }
 reqwest = { version = "0.11", features = ["json", "blocking"] }
 serde_json = "1.0.96"
+native-dialog = { version = "0.6.3", feature = ["windows_dpi_awareness", "windows_visual_styles"] }

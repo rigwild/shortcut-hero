@@ -1,4 +1,4 @@
-use shortcut_gpt::{run, Config};
+use shortcut_hero::{run, Config};
 use std::process;
 
 fn main() {
