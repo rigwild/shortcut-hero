@@ -24,17 +24,7 @@ impl Config {
     pub fn load_config() -> Config {
         let config = load_config_from_file().unwrap();
         println!("Config: {config:#?}\n\n");
-        if config.openai_api_key.trim().is_empty() || config.openai_api_key.trim() == "sk-..." {
-            config
-                .keyboard_shortcuts
-                .iter()
-                .for_each(|x| match x.action {
-                    Action::OpenAIAskChatGPT { .. } => {
-                        panic!("OpenAI API key is empty or not set in configuration file")
-                    }
-                    _ => {}
-                });
-        }
+        assert_config_valid(&config);
         config
     }
 
@@ -66,6 +56,21 @@ fn save_config_to_file(config: &Config) -> anyhow::Result<()> {
 
     file.write_all(json.as_bytes())
         .with_context(|| format!("Could not save config to {config_path:?}"))
+}
+
+fn assert_config_valid(config: &Config) {
+    config.keyboard_shortcuts.iter().for_each(|shortcut| {
+        shortcut.actions.iter().for_each(|action| match action {
+            Action::OpenAIAskChatGPT { .. } => {
+                if config.openai_api_key.trim().is_empty()
+                    || config.openai_api_key.trim() == "sk-..."
+                {
+                    panic!("OpenAI API key is empty or not set in configuration file")
+                }
+            }
+            _ => {}
+        })
+    })
 }
 
 fn init_config_file() {

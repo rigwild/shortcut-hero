@@ -5,21 +5,28 @@
       "key": [
         "DKey"
       ],
-      "action": {
-        "name": "debug"
-      },
-      "input": "nothing",
-      "output": "console"
+      "actions": [
+        {
+          "name": "debug"
+        }
+      ]
     },
     {
       "key": [
         "LControlKey",
-        "BKey"
+        "LAltKey",
+        "LShiftKey",
+        "UKey"
       ],
-      "action": {
-        "name": "openai_ask_chatgpt",
-        "pre_prompt": "Explain to me the following text by talk like I am a 5 years old"
-      },
+      "actions": [
+        {
+          "name": "debug"
+        },
+        {
+          "name": "openai_ask_chatgpt",
+          "pre_prompt": "Explain to me the following text by talking like I am a 5 years old"
+        }
+      ],
       "input": "clipboard",
       "output": "dialog"
     }

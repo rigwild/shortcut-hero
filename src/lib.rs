@@ -51,9 +51,8 @@ fn register_hotkeys(config: &Config) {
                         );
                         let result = shortcut.run(config.deref(), &input_str);
                         match result {
-                            Ok(result_str) => {
-                                // Random idea: use the result from the action and chain actions?
-                                println!("Result [{}] for {:?}", result_str, shortcut)
+                            Ok(_result_str) => {
+                                // println!("Result [{}] for {:?}", result_str, shortcut)
                             }
                             Err(e) => {
                                 eprintln!("Failed [{}] for {:?}", e, shortcut)

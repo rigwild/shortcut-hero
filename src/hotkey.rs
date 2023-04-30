@@ -1,5 +1,5 @@
 use std::collections::HashSet;
-use std::fmt::Debug;
+use std::fmt::{Debug};
 
 use inputbot::KeybdKey;
 use native_dialog::{MessageDialog, MessageType};
@@ -11,6 +11,16 @@ use crate::Config;
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Shortcut {
     pub key: HashSet<KeyboardKey>,
+    pub actions: Vec<Action>,
+    #[serde(default)]
+    pub input: Input,
+    #[serde(default)]
+    pub output: Output,
+}
+
+/// Same as `Shortcut`, but made for chained actions
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ShortCutSub {
     pub action: Action,
     #[serde(default)]
     pub input: Input,
@@ -19,24 +29,40 @@ pub struct Shortcut {
 }
 
 impl Shortcut {
-    pub fn new(key: HashSet<KeyboardKey>, action: Action, input: Input, output: Output) -> Self {
+    pub fn new(
+        key: HashSet<KeyboardKey>,
+        actions: Vec<Action>,
+        input: Input,
+        output: Output,
+    ) -> Self {
         Shortcut {
             key,
-            action,
+            actions,
             input,
             output,
         }
     }
 
     pub fn run(&self, config: &Config, input_str: &str) -> anyhow::Result<String> {
-        let action_result = self.action.run(config, input_str)?;
-        match self.output {
-            Output::Console => println!("Result of action {} is {}", self.action, action_result),
-            Output::MessageDialog => {
-                show_dialog(&format!("Result of action {}", self.action), &action_result)
-            }
+        let mut previous_action_result = input_str.to_string();
+        let mut full_actions_result: Vec<String> = Vec::new();
+        for action in &self.actions {
+            let result = action.run(config, &previous_action_result)?;
+            previous_action_result = result.clone();
+            full_actions_result.push(format!("[{} - {}]", action, result.clone()));
         }
-        Ok(action_result)
+        match self.output {
+            Output::Console => println!(
+                "Result of actions {:#?} is {}",
+                self.actions,
+                full_actions_result.join(", ")
+            ),
+            Output::MessageDialog => show_dialog(
+                &format!("Result of actions {:#?}", self.actions),
+                &full_actions_result.join(", "),
+            ),
+        }
+        Ok(previous_action_result)
     }
 }
 
