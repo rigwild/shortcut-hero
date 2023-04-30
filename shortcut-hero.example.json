@@ -3,13 +3,25 @@
   "keyboard_shortcuts": [
     {
       "key": [
+        "DKey"
+      ],
+      "action": {
+        "name": "debug"
+      },
+      "input": "nothing",
+      "output": "console"
+    },
+    {
+      "key": [
         "LControlKey",
         "BKey"
       ],
       "action": {
         "name": "openai_ask_chatgpt",
-        "pre_prompt": "Talk like a 2 year old"
-      }
+        "pre_prompt": "Explain to me the following text by talk like I am a 5 years old"
+      },
+      "input": "clipboard",
+      "output": "dialog"
     }
   ]
 }

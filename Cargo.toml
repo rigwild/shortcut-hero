@@ -17,4 +17,5 @@ rand = "0.8.5"
 serde = { version = "1.0", features = ["derive"] }
 reqwest = { version = "0.11", features = ["json", "blocking"] }
 serde_json = "1.0.96"
-native-dialog = { version = "0.6.3", feature = ["windows_dpi_awareness", "windows_visual_styles"] }
+native-dialog = { version = "0.6.3", featuresd = ["windows_dpi_awareness", "windows_visual_styles"] }
+copypasta = "0.8.2"

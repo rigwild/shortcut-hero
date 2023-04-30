@@ -6,9 +6,9 @@ use serde::{Deserialize, Serialize};
 
 use crate::config::Config;
 
-pub struct OpenAIAction;
+pub struct OpenAIAskChatGPTAction;
 
-impl OpenAIAction {
+impl OpenAIAskChatGPTAction {
     pub fn ask_chat_gpt(config: &Config, pre_prompt: &str, prompt: &str) -> anyhow::Result<String> {
         ask_chatgpt(pre_prompt, prompt, config.openai_api_key.as_str())
     }

@@ -13,27 +13,27 @@ pub struct Shortcut {
     pub key: HashSet<KeyboardKey>,
     pub action: Action,
     #[serde(default)]
+    pub input: Input,
+    #[serde(default)]
     pub output: Output,
 }
 
 impl Shortcut {
-    pub fn new(key: HashSet<KeyboardKey>, action: Action, output: Output) -> Self {
+    pub fn new(key: HashSet<KeyboardKey>, action: Action, input: Input, output: Output) -> Self {
         Shortcut {
             key,
             action,
+            input,
             output,
         }
-    }
-
-    pub fn with_output_dialog(key: HashSet<KeyboardKey>, action: Action) -> Self {
-        Shortcut::new(key, action, Output::MessageDialog)
     }
 
     pub fn run(&self, config: &Config, input_str: &str) -> anyhow::Result<String> {
         let action_result = self.action.run(config, input_str)?;
         match self.output {
+            Output::Console => println!("Result of action {} is {}", self.action, action_result),
             Output::MessageDialog => {
-                show_dialog(&format!("Result of action {}", self.action), &action_result);
+                show_dialog(&format!("Result of action {}", self.action), &action_result)
             }
         }
         Ok(action_result)
@@ -41,15 +41,29 @@ impl Shortcut {
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash, Serialize, Deserialize)]
-#[serde(tag = "name", rename_all = "snake_case")]
+#[serde(rename_all = "snake_case")]
+pub enum Input {
+    Nothing,
+    Clipboard,
+}
+
+impl Default for Input {
+    fn default() -> Self {
+        Input::Nothing
+    }
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, Hash, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum Output {
+    Console,
     #[serde(rename = "dialog")]
     MessageDialog,
 }
 
 impl Default for Output {
     fn default() -> Self {
-        Output::MessageDialog
+        Output::Console
     }
 }
 

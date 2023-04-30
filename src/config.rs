@@ -6,6 +6,7 @@ use std::{env, fs};
 use anyhow::{anyhow, Context};
 use serde::{Deserialize, Serialize};
 
+use crate::actions::Action;
 use crate::hotkey::Shortcut;
 
 const CONFIG_FILE_NAME: &'static str = "shortcut-hero.json";
@@ -22,9 +23,17 @@ pub struct Config {
 impl Config {
     pub fn load_config() -> Config {
         let config = load_config_from_file().unwrap();
-        println!("{config:#?}");
+        println!("Config: {config:#?}\n\n");
         if config.openai_api_key.trim().is_empty() || config.openai_api_key.trim() == "sk-..." {
-            panic!("OpenAI API key is empty or not set in configuration file")
+            config
+                .keyboard_shortcuts
+                .iter()
+                .for_each(|x| match x.action {
+                    Action::OpenAIAskChatGPT { .. } => {
+                        panic!("OpenAI API key is empty or not set in configuration file")
+                    }
+                    _ => {}
+                });
         }
         config
     }
