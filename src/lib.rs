@@ -1,10 +1,11 @@
+use std::ops::Deref;
+use std::sync::Arc;
+
+pub use crate::config::Config;
+
 pub mod actions;
 pub mod config;
 pub mod hotkey;
-
-pub use crate::config::Config;
-use std::ops::Deref;
-use std::sync::Arc;
 
 pub fn run(config: &Config) -> anyhow::Result<()> {
     let input_str = "Whats your name?";

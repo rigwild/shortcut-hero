@@ -2,7 +2,10 @@
   "openai_api_key": "sk-...",
   "keyboard_shortcuts": [
     {
-      "key": ["LControlKey", "BKey"],
+      "key": [
+        "LControlKey",
+        "BKey"
+      ],
       "action": {
         "name": "openai_ask_chatgpt",
         "pre_prompt": "Talk like a 2 year old"

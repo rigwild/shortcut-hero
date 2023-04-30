@@ -1,9 +1,11 @@
-mod openai;
+use std::fmt::{Display, Formatter};
+
+use serde::{Deserialize, Serialize};
 
 use crate::actions::openai::OpenAIAction;
 use crate::config::Config;
-use serde::{Deserialize, Serialize};
-use std::fmt::{Display, Formatter};
+
+mod openai;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "name", rename_all = "snake_case")]

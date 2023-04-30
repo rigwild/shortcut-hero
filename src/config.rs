@@ -1,12 +1,14 @@
-use anyhow::{anyhow, Context};
-use serde::{Deserialize, Serialize};
 use std::fs::File;
 use std::io::prelude::*;
 use std::path::PathBuf;
 use std::{env, fs};
-use crate::hotkey::{Shortcut};
 
-const CONFIG_FILE_NAME: &'static str = "shortcut-gpt.json";
+use anyhow::{anyhow, Context};
+use serde::{Deserialize, Serialize};
+
+use crate::hotkey::Shortcut;
+
+const CONFIG_FILE_NAME: &'static str = "shortcut-hero.json";
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Config {

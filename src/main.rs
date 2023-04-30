@@ -1,5 +1,6 @@
-use shortcut_hero::{run, Config};
 use std::process;
+
+use shortcut_hero::{run, Config};
 
 fn main() {
     let config = Config::load_config();

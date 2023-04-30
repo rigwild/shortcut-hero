@@ -1,8 +1,10 @@
-use crate::config::Config;
+use std::env;
+
 use anyhow::anyhow;
 use reqwest::blocking::Client as HttpClient;
 use serde::{Deserialize, Serialize};
-use std::env;
+
+use crate::config::Config;
 
 pub struct OpenAIAction;
 

@@ -1,10 +1,12 @@
-use crate::actions::Action;
-use crate::Config;
+use std::collections::HashSet;
+use std::fmt::Debug;
+
 use inputbot::KeybdKey;
 use native_dialog::{MessageDialog, MessageType};
 use serde::{Deserialize, Serialize};
-use std::collections::HashSet;
-use std::fmt::Debug;
+
+use crate::actions::Action;
+use crate::Config;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Shortcut {
