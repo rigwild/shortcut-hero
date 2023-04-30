@@ -1,4 +1,3 @@
-use std::collections::HashSet;
 use std::fmt::Debug;
 
 pub use inputbot::KeybdKey;
@@ -9,13 +8,13 @@ use crate::Config;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Shortcut {
-    pub keys: HashSet<KeyboardKey>,
+    pub keys: Vec<KeyboardKey>,
     pub actions: Vec<Action>,
 }
 
 impl Shortcut {
-    pub fn new(key: HashSet<KeyboardKey>, actions: Vec<Action>) -> Self {
-        Shortcut { keys: key, actions }
+    pub fn new(keys: Vec<KeyboardKey>, actions: Vec<Action>) -> Self {
+        Shortcut { keys, actions }
     }
 
     pub fn trigger(&self, config: &Config) -> anyhow::Result<Vec<String>> {

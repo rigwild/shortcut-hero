@@ -78,10 +78,10 @@ fn init_config_file() {
     save_config_to_file(&Config {
         openai_api_key: "sk-...".to_string(),
         keyboard_shortcuts: vec![Shortcut::new(
-            std::collections::HashSet::from([
+            vec![
                 KeyboardKey(KeybdKey::LControlKey),
                 KeyboardKey(KeybdKey::BKey),
-            ]),
+            ],
             vec![
                 Action::ReadClipboard,
                 Action::Debug,
