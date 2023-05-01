@@ -163,6 +163,104 @@ Delete a variable. Returns input (if the deleted variable is `input`, returns no
 }
 ```
 
+### Sleep
+
+Wait for a given duration. Returns input.
+
+- Parameter `duration_ms` must be a string containing a valid positive integer, in milliseconds.
+
+Wait for 1 second.
+
+```json
+{
+  "action": "sleep",
+  "duration_ms": "1000"
+}
+```
+
+Wait for 5 seconds.\
+With `wait_time = 5000`
+
+```json
+{
+  "action": "sleep",
+  "duration_ms": "{{wait_time}}"
+}
+```
+
+### End Program
+
+End the program.
+
+```json
+{
+  "action": "end_program"
+}
+```
+
+### Go To Step
+
+Go to a given step in the list of actions (starts at 0). Returns input.
+
+Will error out if the step is out of bounds.
+
+- Parameter `step` must be a string containing a valid positive integer.
+
+Go to step 0.
+
+```json
+{
+  "action": "go_to_step",
+  "step": "0"
+}
+```
+
+Go to step 5.\
+With `my_step = 5`
+
+```json
+{
+  "action": "go_to_step",
+  "step": "{{my_step}}"
+}
+```
+
+### Go To Step Relative
+
+Go to a given step in the list of actions relative from the current step. Returns input.
+
+Will error out if the step is out of bounds.
+
+- Parameter `step` must be a string containing a valid positive integer.
+
+Go 2 steps ahead relative from the current step.
+
+```json
+{
+  "action": "go_to_step_relative",
+  "step_relative": "2"
+}
+```
+
+Go 1 step behind relative from the current step.
+
+```json
+{
+  "action": "go_to_step_relative",
+  "step_relative": "-1"
+}
+```
+
+Go 5 steps behind relative from the current step.\
+With `my_step = -5`
+
+```json
+{
+  "action": "go_to_step_relative",
+  "step_relative": "{{my_step}}"
+}
+```
+
 ### Print Console
 
 Print the input to the console. Returns input.
@@ -367,7 +465,7 @@ With:
 {
   "action": "openai_ask_chatgpt",
   "pre_prompt": "You are playing a theater game where you are a character in a made-up story. You are in a scene, you are called {{character_assistant}}. You say: \"I am going to the store to buy some apples.\"",
-  "prompt": "- {{character_me}}: \"Hey {{character_assistance}}! {{character_me_sentence}}\""
+  "prompt": "- {{character_me}}: \"Hey {{character_assistant}}! {{character_me_sentence}}\""
 }
 ```
 

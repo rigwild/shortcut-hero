@@ -6,8 +6,14 @@ use native_dialog::{MessageDialog, MessageType};
 pub struct BasicAction;
 
 impl BasicAction {
-    pub fn print_console(input_str: &str) -> anyhow::Result<()> {
-        println!("{input_str}");
+    pub fn sleep(duration_ms: &str) -> anyhow::Result<()> {
+        let duration_ms = duration_ms.parse::<u64>().unwrap();
+        std::thread::sleep(std::time::Duration::from_millis(duration_ms));
+        Ok(())
+    }
+
+    pub fn print_console(content: &str) -> anyhow::Result<()> {
+        println!("{content}");
         Ok(())
     }
 

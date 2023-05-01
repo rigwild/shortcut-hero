@@ -1,7 +1,9 @@
 use std::collections::HashMap;
 use std::fmt::Debug;
 
+use anyhow::anyhow;
 pub use inputbot::KeybdKey;
+use rand::Rng;
 use serde::{Deserialize, Serialize};
 
 use crate::actions::Action;
@@ -19,17 +21,101 @@ impl Shortcut {
     }
 
     pub fn trigger(&self, config: &Config) -> anyhow::Result<Vec<String>> {
+        let trigger_id: u32 = rand::thread_rng().gen();
+
         let mut variables: HashMap<String, String> = HashMap::new();
         let mut input_str = "".to_string();
 
         let mut full_actions_result: Vec<String> = Vec::new();
-        for action in &self.actions {
-            let result = action.run(config, &input_str, &mut variables)?;
-            input_str = result.clone();
-            full_actions_result.push(format!("[{:?} - {}]", action, result.clone()));
+        let mut i_action = 0;
+        while i_action < self.actions.len() {
+            let i_action_start = i_action;
+
+            let action = &self.actions[i_action];
+            let shortcut_result = action.run(config, &input_str, &mut variables)?;
+
+            match shortcut_result {
+                ShortcutResult::Success(output) => {
+                    input_str = output.clone();
+                }
+                ShortcutResult::GoToStep { output, step } => {
+                    input_str = output.clone();
+                    if step >= self.actions.len() {
+                        return Err(anyhow!(
+                            "Step to go to [from {} to {}] is out of bounds [0, {}] )",
+                            i_action,
+                            step,
+                            self.actions.len() - 1
+                        ))?;
+                    }
+                    i_action = step;
+                }
+                ShortcutResult::GoToStepRelative {
+                    output,
+                    step_relative,
+                    sign_is_positive,
+                } => {
+                    input_str = output.clone();
+                    let step_absolute: usize = step_relative as usize;
+                    if !sign_is_positive {
+                        if step_absolute > i_action {
+                            return Err(anyhow!(
+                                "Step to go to [from {} to {} (-{})] is out of bounds [0, {}] )",
+                                i_action,
+                                i_action - step_absolute,
+                                step_relative,
+                                self.actions.len() - 1
+                            ))?;
+                        } else {
+                            i_action = i_action - step_absolute;
+                        }
+                    } else {
+                        if i_action + step_absolute >= self.actions.len() {
+                            return Err(anyhow!(
+                                "Step to go to [from {} to {} (+{})] is out of bounds [0, {}] )",
+                                i_action,
+                                i_action + step_absolute,
+                                step_relative,
+                                self.actions.len() - 1
+                            ))?;
+                        } else {
+                            i_action = i_action + step_absolute;
+                        }
+                    }
+                }
+                ShortcutResult::EndProgram(output) => {
+                    input_str = output.clone();
+                    i_action = usize::MAX;
+                }
+            }
+            let action_result = format!("{:?}, Output: {}", action, input_str);
+            full_actions_result.push(action_result.clone());
+            println!("[Action Run ID={trigger_id}] {action_result}");
+
+            // Do not increment if one of the shortcuts changed the action index
+            if i_action_start == i_action {
+                i_action += 1;
+            }
         }
         Ok(full_actions_result)
     }
+}
+
+/// The result of a shortcut action
+///
+/// Every result should contain at least the output string
+pub enum ShortcutResult {
+    Success(String),
+    GoToStep {
+        output: String,
+        step: usize,
+    },
+    GoToStepRelative {
+        output: String,
+        step_relative: usize,
+        sign_is_positive: bool,
+    },
+    EndProgram(String),
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash, Serialize, Deserialize)]
