@@ -54,11 +54,17 @@ Here is a [configuration file example](./shortcut-hero.example.json).
       "keys": ["DKey"],
       "actions": [
         {
-          "name": "set_input",
-          "content": "Hello World!"
+          "action": "set_variable",
+          "name": "user",
+          "value": "rigwild"
         },
         {
-          "name": "debug"
+          "action": "set_variable",
+          "name": "city",
+          "value": "Bordeaux"
+        },
+        {
+          "action": "debug"
         }
       ]
     },
@@ -66,13 +72,13 @@ Here is a [configuration file example](./shortcut-hero.example.json).
       "keys": ["LControlKey", "BKey"],
       "actions": [
         {
-          "name": "read_clipboard"
+          "action": "read_clipboard"
         },
         {
-          "name": "debug"
+          "action": "debug"
         },
         {
-          "name": "show_dialog",
+          "action": "show_dialog",
           "title": "Hello World!",
           "body": "{{input}}"
         }
@@ -101,119 +107,130 @@ List of [actions](#actions) to run when triggering this shortcut.
 
 Actions are synchronous functions that take some input and return some output, they can do anything.
 
-The actions will run in the order that they are defined. The result of each action is provided to the next action as an input.
+The actions will run in the order they are defined. The result of each action is provided to the next action as an input (variable `input`).
 
-If an action requires any parameter, the tag `{{input}}` will be replaced everywhere by the provided input.
+If an action requires any parameter, you can use variables enclosed in tags `{{input}}` or `{{my_variable}}`, they will be replaced everywhere with the associated value.
 
-The first action in the list will receive an empty string as an input. You may want to start your list of actions with an action that read some input for the next actions.
+Variables names are case-insensitive.
+
+The first action in the list will receive an empty string as an input. You may want to start your list of actions with an action that read some data as input for the next actions.
 
 ### Debug
 
-Print the configuration and the provided input. Returns input.
+Print the configuration, the provided input and the list of variables. Returns input.
 
 ```json
 {
-  "name": "debug"
+  "action": "debug"
 }
 ```
 
-### Clear Input
+### Set Variable
 
-Remove the input, useful if the next action does not require an input. Returns empty string.
+Set the value of a variable. Do not use tags like `{{input}}` or `{{my_variable}}` for the name of the variable, use the variable name directly `input` or `my_variable`. Otherwise, value can contain tags like `{{input}}` or `{{my_variable}}`.
+
+Returns input.
+
+Set the variable `city` to `Bordeaux`.
 
 ```json
 {
-  "name": "clear_input"
+  "action": "set_variable",
+  "name": "city",
+  "value": "Bordeaux"
 }
 ```
 
-### Set Input
-
-Set the input. Returns the new input.
-
-Input before: `anything`\
-Input after: `Hello world!`
+Set the variable `input` to `Hello, I am rigwild! How are you? Bordeaux is a great place to live!`.\
+With `input = rigwild`, `city = Bordeaux`
 
 ```json
 {
-  "name": "set_input",
-  "content": "Hello world!"
+  "action": "set_variable",
+  "name": "input",
+  "value": "Hello, I am {{input}}! How are you? {{city}} is a great place to live!"
 }
 ```
 
-Input before: `rigwild`\
-Input after: `Hello, I am rigwild! How are you?`
+### Delete Variable
+
+Delete a variable. Returns input (if the deleted variable is `input`, returns nothing).
 
 ```json
 {
-  "name": "set_input",
-  "content": "Hello, I am {{input}}! How are you?"
+  "action": "delete_variable",
+  "name": "my_variable"
 }
 ```
 
 ### Print Console
 
-Print the input to the console. Returns original input.
+Print the input to the console. Returns input.
 
 - Parameter `content` is optional, default value is `{{input}}`.
-
-Print `{{input}}` to the console.
-
-```json
-{
-  "name": "print_console"
-}
-```
 
 Print `Hello world!` to the console.
 
 ```json
 {
-  "name": "print_console",
+  "action": "print_console",
   "content": "Hello world!"
 }
 ```
 
-Print `Hello world! I am {{input}}!` to the console.
+Print `Hello world!` to the console.\
+With `input = Hello world!`
 
 ```json
 {
-  "name": "print_console",
-  "content": "Hello world! I am {{input}}!"
+  "action": "print_console"
+}
+```
+
+Print `Hello world! I am rigwild! I live in Bordeaux` to the console.\
+With `input = rigwild`, `city = Bordeaux`
+
+```json
+{
+  "action": "print_console",
+  "content": "Hello world! I am {{input}}! I live in {{city}}"
 }
 ```
 
 ### Show Dialog
 
-Show the input in a native OS dialog box. Returns original input.
+Show the input in a native OS dialog box. Returns input.
 
 - Parameter `title` is optional, default value is `Action Result`.
 - Parameter `body` is optional, default value is `{{input}}`.
 
-Show a dialog with title `Action Result` and body `{{input}}`.
+Show a dialog with title `Action Result` and body `Hello World!`.\
+With `input = Hello world!`
 
 ```json
 {
-  "name": "show_dialog"
+  "action": "show_dialog"
 }
 ```
 
-Show a dialog with title `My Dialog Title` and body `{{input}}`.
+Show a dialog with title `My Dialog Title` and body `Hello world!`.\
+With `input = Hello world!`
 
 ```json
 {
-  "name": "show_dialog",
+  "action": "show_dialog",
   "title": "My Dialog Title"
 }
 ```
 
-Show a dialog with title `My Dialog Title` and body `Result from action is {{input}}`.
+Show a dialog with title `Result of operation "12 * 11"` and body `Result from action is: 132`.\
+With `input = 132`, `math_equation = 12 * 11`
 
 ```json
 {
-  "name": "show_dialog",
-  "title": "My Dialog Title",
-  "body": "Result from action is {{input}}"
+  "action": "show_dialog",
+  "title": "Result of operation \"{{math_equation}}\"",
+  "body": "Result from action is: {{input}}"
 }
 ```
 
@@ -223,39 +240,41 @@ Read the content of the clipboard. Returns content of the clipboard.
 
 ```json
 {
-  "name": "read_clipboard"
+  "action": "read_clipboard"
 }
 ```
 
 ### Write Clipboard
 
-Write the input to the clipboard. Returns original input.
+Write to the clipboard. Returns input.
 
 - Parameter `content` is optional, default value is `{{input}}`.
-
-Write the input `{{input}}` to the clipboard.
-
-```json
-{
-  "name": "write_clipboard"
-}
-```
 
 Write `Hello world!` to the clipboard.
 
 ```json
 {
-  "name": "write_clipboard",
+  "action": "write_clipboard",
   "content": "Hello world!"
 }
 ```
 
-Write `Hello {{input}}!` to the clipboard.
+Write `Hello world!` to the clipboard.\
+With `input = Hello world!`
 
 ```json
 {
-  "name": "write_clipboard",
-  "content": "Hello {{input}}!"
+  "action": "write_clipboard"
+}
+```
+
+Write `The quick brown fox jumps over the lazy dog` to the clipboard.\
+With `animal = dog`.
+
+```json
+{
+  "action": "write_clipboard",
+  "content": "The quick brown fox jumps over the lazy {{animal}}"
 }
 ```
 
@@ -265,12 +284,12 @@ Spawn a system command. Returns the result of the command.
 
 - Parameter `args` is optional, default value is empty list.
 
-Pass the input as a script for Node.js to execute.\
-Input is `console.log('Hello world!')`.
+Evaluate a JavaScript program with Node.js.\
+With `input = console.log('Hello world!')`.
 
 ```json
 {
-  "name": "spawn",
+  "action": "spawn",
   "command": "/usr/bin/node",
   "args": ["-e", "{{input}}"]
 }
@@ -281,11 +300,11 @@ Input is `console.log('Hello world!')`.
 ```
 
 Find the files that are bigger than 1 MB in a directory.\
-Input is `~/`.
+With `input = ~/`.
 
 ```json
 {
-  "name": "spawn",
+  "action": "spawn",
   "command": "find",
   "args": ["find", "{{input}}", "-type", "f", "-size", "+1M", "-exec", "ls", "-lh", "{}", "\\;"]
 }
@@ -296,52 +315,59 @@ find ~/ -type f -size +1M -exec ls -lh {} \;
 ```
 
 Execute an arbitrary command (dangerous).\
-Input is `rm -rf /some/example`.
+With `command = rm`, `path = /some/example`.
 
 ```json
 {
-  "name": "spawn",
-  "command": "{{input}}",
-  "args": ["-rf", "/some/example"]
+  "action": "spawn",
+  "command": "{{command}}",
+  "args": ["-rf", "{{path}}"]
 }
 ```
 
 ```sh
-rm -rf /some/example -rf /some/example
+rm -rf /some/example
 ```
 
 ### Ask ChatGPT
 
-Get the provided input and ask ChatGPT to answer. You can provide a pre-prompt to ask a specific action for this shortcut.
+Ask something to ChatGPT. Returns the answer from ChatGPT.
 
 - Parameter `pre_prompt` is optional, default value is no pre-prompt.
 - Parameter `prompt` is optional, default value is `{{input}}`.
 
-Ask ChatGPT to answer `{{input}}`.
+Ask ChatGPT to answer.\
+With `input = Who are you?!`.
 
 ```json
 {
-  "name": "ask_chatgpt"
+  "action": "ask_chatgpt"
 }
 ```
 
-Ask ChatGPT to answer `{{input}}` with pre-prompt `Explain to me the following text by talking like I am a 5 years old`.
+Ask ChatGPT to answer `Who are you?!` with fixed pre-prompt `Explain to me the following text by talking like I am a 5 years old`.\
+With `input = Who are you?!`.
 
 ```json
 {
-  "name": "ask_chatgpt",
+  "action": "ask_chatgpt",
   "pre_prompt": "Explain to me the following text by talking like I am a 5 years old",
   "prompt": "{{input}}"
 }
 ```
 
-Ask ChatGPT to play a theater game with the provided input.
+Ask ChatGPT to play a theater game with dynamic participants and pre-prompt.\
+With:
+
+- `character_assistant = rigwild`
+- `character_me = Louna`
+- `character_me_sentence = Can you buy me some peaches too?`
 
 ```json
 {
-  "name": "openai_ask_chatgpt",
-  "pre_prompt": "You are playing a theater game where you are a character in a made-up story. You are in a scene, you are called rigwild. You say: \"I am going to the store to buy some apples.\"",
-  "prompt": "- Louna: \"Hello rigwild, {{input}}\""
+  "action": "openai_ask_chatgpt",
+  "pre_prompt": "You are playing a theater game where you are a character in a made-up story. You are in a scene, you are called {{character_assistant}}. You say: \"I am going to the store to buy some apples.\"",
+  "prompt": "- {{character_me}}: \"Hey {{character_assistance}}! {{character_me_sentence}}\""
 }
 ```
 

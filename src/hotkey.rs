@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::fmt::Debug;
 
 pub use inputbot::KeybdKey;
@@ -18,11 +19,13 @@ impl Shortcut {
     }
 
     pub fn trigger(&self, config: &Config) -> anyhow::Result<Vec<String>> {
-        let mut previous_action_result = "".to_string();
+        let mut variables: HashMap<String, String> = HashMap::new();
+        let mut input_str = "".to_string();
+
         let mut full_actions_result: Vec<String> = Vec::new();
         for action in &self.actions {
-            let result = action.run(config, &previous_action_result)?;
-            previous_action_result = result.clone();
+            let result = action.run(config, &input_str, &mut variables)?;
+            input_str = result.clone();
             full_actions_result.push(format!("[{:?} - {}]", action, result.clone()));
         }
         Ok(full_actions_result)

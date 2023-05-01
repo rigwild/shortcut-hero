@@ -5,11 +5,17 @@
       "keys": ["DKey"],
       "actions": [
         {
-          "name": "set_input",
-          "content": "Hello World!"
+          "action": "set_variable",
+          "name": "user",
+          "value": "rigwild"
         },
         {
-          "name": "debug"
+          "action": "set_variable",
+          "name": "city",
+          "value": "Bordeaux"
+        },
+        {
+          "action": "debug"
         }
       ]
     },
@@ -17,13 +23,13 @@
       "keys": ["LControlKey", "BKey"],
       "actions": [
         {
-          "name": "read_clipboard"
+          "action": "read_clipboard"
         },
         {
-          "name": "debug"
+          "action": "debug"
         },
         {
-          "name": "show_dialog",
+          "action": "show_dialog",
           "title": "Hello World!",
           "body": "{{input}}"
         }

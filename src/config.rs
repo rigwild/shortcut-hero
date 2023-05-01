@@ -62,7 +62,7 @@ fn save_config_to_file(config: &Config) -> anyhow::Result<()> {
 fn assert_config_valid(config: &Config) {
     config.keyboard_shortcuts.iter().for_each(|shortcut| {
         shortcut.actions.iter().for_each(|action| match action {
-            Action::OpenAIAskChatGPT { .. } => {
+            Action::AskChatGPT { .. } => {
                 if config.openai_api_key.trim().is_empty()
                     || config.openai_api_key.trim() == "sk-..."
                 {
@@ -81,8 +81,13 @@ fn init_config_file() {
             Shortcut::new(
                 vec![KeyboardKey(KeybdKey::DKey)],
                 vec![
-                    Action::SetInput {
-                        content: "Hello World!".to_string(),
+                    Action::SetVariable {
+                        name: "user".to_string(),
+                        value: "rigwild".to_string(),
+                    },
+                    Action::SetVariable {
+                        name: "city".to_string(),
+                        value: "Bordeaux".to_string(),
                     },
                     Action::Debug,
                 ],
