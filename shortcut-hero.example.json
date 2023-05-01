@@ -5,8 +5,8 @@
       "keys": ["DKey"],
       "actions": [
         {
-          "name": "fixed_input",
-          "input": "Hello world!"
+          "name": "set_input",
+          "content": "Hello World!"
         },
         {
           "name": "debug"
@@ -23,15 +23,9 @@
           "name": "debug"
         },
         {
-          "name": "openai_ask_chatgpt",
-          "pre_prompt": "Explain to me the following text by talking like I am a 5 years old"
-        },
-        {
-          "name": "print_console"
-        },
-        {
           "name": "show_dialog",
-          "title": "ChatGPT Explain"
+          "title": "Hello World!",
+          "body": "{{input}}"
         }
       ]
     }

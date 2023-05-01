@@ -77,19 +77,31 @@ fn assert_config_valid(config: &Config) {
 fn init_config_file() {
     save_config_to_file(&Config {
         openai_api_key: "sk-...".to_string(),
-        keyboard_shortcuts: vec![Shortcut::new(
-            vec![
-                KeyboardKey(KeybdKey::LControlKey),
-                KeyboardKey(KeybdKey::BKey),
-            ],
-            vec![
-                Action::ReadClipboard,
-                Action::Debug,
-                Action::ShowDialog {
-                    title: "Hello World!".to_string(),
-                },
-            ],
-        )],
+        keyboard_shortcuts: vec![
+            Shortcut::new(
+                vec![KeyboardKey(KeybdKey::DKey)],
+                vec![
+                    Action::SetInput {
+                        content: "Hello World!".to_string(),
+                    },
+                    Action::Debug,
+                ],
+            ),
+            Shortcut::new(
+                vec![
+                    KeyboardKey(KeybdKey::LControlKey),
+                    KeyboardKey(KeybdKey::BKey),
+                ],
+                vec![
+                    Action::ReadClipboard,
+                    Action::Debug,
+                    Action::ShowDialog {
+                        title: "Hello World!".to_string(),
+                        body: "{{input}}".to_string(),
+                    },
+                ],
+            ),
+        ],
     })
     .unwrap();
 }

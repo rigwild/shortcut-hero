@@ -1,7 +1,7 @@
 [package]
 name = "shortcut-hero"
 description = "Bind keyboard shortcuts to any actions"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = ["rigwild <me@rigwild.dev>"]
 repository = "https://github.com/rigwild/shortcut-hero"

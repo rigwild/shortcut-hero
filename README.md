@@ -54,8 +54,8 @@ Here is a [configuration file example](./shortcut-hero.example.json).
       "keys": ["DKey"],
       "actions": [
         {
-          "name": "fixed_input",
-          "input": "Hello world!"
+          "name": "set_input",
+          "content": "Hello World!"
         },
         {
           "name": "debug"
@@ -72,15 +72,9 @@ Here is a [configuration file example](./shortcut-hero.example.json).
           "name": "debug"
         },
         {
-          "name": "openai_ask_chatgpt",
-          "pre_prompt": "Explain to me the following text by talking like I am a 5 years old"
-        },
-        {
-          "name": "print_console"
-        },
-        {
           "name": "show_dialog",
-          "title": "ChatGPT Explain"
+          "title": "Hello World!",
+          "body": "{{input}}"
         }
       ]
     }
@@ -109,7 +103,9 @@ Actions are synchronous functions that take some input and return some output, t
 
 The actions will run in the order that they are defined. The result of each action is provided to the next action as an input.
 
-The first action will receive an empty string as an input. You may want to start your list of actions with an action that read some input for the next actions.
+If an action requires any parameter, the tag `{{input}}` will be replaced everywhere by the provided input.
+
+The first action in the list will receive an empty string as an input. You may want to start your list of actions with an action that read some input for the next actions.
 
 ### Debug
 
@@ -131,20 +127,37 @@ Remove the input, useful if the next action does not require an input. Returns e
 }
 ```
 
-### Fixed Input
+### Set Input
 
-Provide some input directly from the configuration file. Returns input.
+Set the input. Returns the new input.
+
+Input before: `anything`\
+Input after: `Hello world!`
 
 ```json
 {
-  "name": "fixed_input",
-  "input": "Hello world!"
+  "name": "set_input",
+  "content": "Hello world!"
+}
+```
+
+Input before: `rigwild`\
+Input after: `Hello, I am rigwild! How are you?`
+
+```json
+{
+  "name": "set_input",
+  "content": "Hello, I am {{input}}! How are you?"
 }
 ```
 
 ### Print Console
 
-Print the input to the console. Returns input
+Print the input to the console. Returns original input.
+
+- Parameter `content` is optional, default value is `{{input}}`.
+
+Print `{{input}}` to the console.
 
 ```json
 {
@@ -152,16 +165,55 @@ Print the input to the console. Returns input
 }
 ```
 
+Print `Hello world!` to the console.
+
+```json
+{
+  "name": "print_console",
+  "content": "Hello world!"
+}
+```
+
+Print `Hello world! I am {{input}}!` to the console.
+
+```json
+{
+  "name": "print_console",
+  "content": "Hello world! I am {{input}}!"
+}
+```
+
 ### Show Dialog
 
-Show the input in a native OS dialog box. Returns input.
+Show the input in a native OS dialog box. Returns original input.
 
-Parameter `title` is optional, default value is `Action Result`.
+- Parameter `title` is optional, default value is `Action Result`.
+- Parameter `body` is optional, default value is `{{input}}`.
+
+Show a dialog with title `Action Result` and body `{{input}}`.
+
+```json
+{
+  "name": "show_dialog"
+}
+```
+
+Show a dialog with title `My Dialog Title` and body `{{input}}`.
 
 ```json
 {
   "name": "show_dialog",
   "title": "My Dialog Title"
+}
+```
+
+Show a dialog with title `My Dialog Title` and body `Result from action is {{input}}`.
+
+```json
+{
+  "name": "show_dialog",
+  "title": "My Dialog Title",
+  "body": "Result from action is {{input}}"
 }
 ```
 
@@ -177,7 +229,11 @@ Read the content of the clipboard. Returns content of the clipboard.
 
 ### Write Clipboard
 
-Write the input to the clipboard. Returns input.
+Write the input to the clipboard. Returns original input.
+
+- Parameter `content` is optional, default value is `{{input}}`.
+
+Write the input `{{input}}` to the clipboard.
 
 ```json
 {
@@ -185,32 +241,107 @@ Write the input to the clipboard. Returns input.
 }
 ```
 
+Write `Hello world!` to the clipboard.
+
+```json
+{
+  "name": "write_clipboard",
+  "content": "Hello world!"
+}
+```
+
+Write `Hello {{input}}!` to the clipboard.
+
+```json
+{
+  "name": "write_clipboard",
+  "content": "Hello {{input}}!"
+}
+```
+
 ### Spawn
 
-Spawn a system command. The input will be provided as the last argument. Returns the result.
+Spawn a system command. Returns the result of the command.
 
-Parameter `args` is optional, default value is empty list.
+- Parameter `args` is optional, default value is empty list.
 
-The following example will pass the input as a script for Node.js to execute `node -e "console.log('Hello world!')"`.
+Pass the input as a script for Node.js to execute.\
+Input is `console.log('Hello world!')`.
 
 ```json
 {
   "name": "spawn",
   "command": "/usr/bin/node",
-  "args": ["-e"]
+  "args": ["-e", "{{input}}"]
 }
+```
+
+```sh
+/usr/bin/node -e "console.log('Hello world!')"
+```
+
+Find the files that are bigger than 1 MB in a directory.\
+Input is `~/`.
+
+```json
+{
+  "name": "spawn",
+  "command": "find",
+  "args": ["find", "{{input}}", "-type", "f", "-size", "+1M", "-exec", "ls", "-lh", "{}", "\\;"]
+}
+```
+
+```sh
+find ~/ -type f -size +1M -exec ls -lh {} \;
+```
+
+Execute an arbitrary command (dangerous).\
+Input is `rm -rf /some/example`.
+
+```json
+{
+  "name": "spawn",
+  "command": "{{input}}",
+  "args": ["-rf", "/some/example"]
+}
+```
+
+```sh
+rm -rf /some/example -rf /some/example
 ```
 
 ### Ask ChatGPT
 
 Get the provided input and ask ChatGPT to answer. You can provide a pre-prompt to ask a specific action for this shortcut.
 
-Parameter `pre_prompt` is optional, default value is no pre-prompt.
+- Parameter `pre_prompt` is optional, default value is no pre-prompt.
+- Parameter `prompt` is optional, default value is `{{input}}`.
+
+Ask ChatGPT to answer `{{input}}`.
+
+```json
+{
+  "name": "ask_chatgpt"
+}
+```
+
+Ask ChatGPT to answer `{{input}}` with pre-prompt `Explain to me the following text by talking like I am a 5 years old`.
+
+```json
+{
+  "name": "ask_chatgpt",
+  "pre_prompt": "Explain to me the following text by talking like I am a 5 years old",
+  "prompt": "{{input}}"
+}
+```
+
+Ask ChatGPT to play a theater game with the provided input.
 
 ```json
 {
   "name": "openai_ask_chatgpt",
-  "pre_prompt": "Explain to me the following text by talking like I am a 5 years old"
+  "pre_prompt": "You are playing a theater game where you are a character in a made-up story. You are in a scene, you are called rigwild. You say: \"I am going to the store to buy some apples.\"",
+  "prompt": "- Louna: \"Hello rigwild, {{input}}\""
 }
 ```
 

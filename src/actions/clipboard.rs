@@ -8,10 +8,10 @@ impl ClipboardAction {
         Ok(ctx.get_contents().unwrap_or_else(|_| "".to_string()))
     }
 
-    pub fn set_clipboard_content(content: &str) -> anyhow::Result<String> {
+    pub fn set_clipboard_content(content: &str) -> anyhow::Result<()> {
         let mut ctx = ClipboardContext::new().unwrap();
         ctx.set_contents(content.to_owned())
             .expect("Failed to save content to clipboard");
-        Ok(content.to_string())
+        Ok(())
     }
 }

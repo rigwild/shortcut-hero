@@ -6,27 +6,26 @@ use native_dialog::{MessageDialog, MessageType};
 pub struct BasicAction;
 
 impl BasicAction {
-    pub fn print_console(input_str: &str) -> anyhow::Result<String> {
+    pub fn print_console(input_str: &str) -> anyhow::Result<()> {
         println!("{input_str}");
-        Ok(input_str.to_string())
+        Ok(())
     }
 
-    pub fn show_dialog(title: &str, content: &str) -> anyhow::Result<String> {
+    pub fn show_dialog(title: &str, content: &str) -> anyhow::Result<()> {
         MessageDialog::new()
             .set_type(MessageType::Info)
             .set_title(title)
             .set_text(content)
             .show_alert()
             .unwrap();
-        Ok(content.to_string())
+        Ok(())
     }
 
-    pub fn spawn(command: &str, args: &Vec<String>, last_arg: &str) -> anyhow::Result<String> {
+    pub fn spawn(command: &str, args: &Vec<String>) -> anyhow::Result<String> {
         let mut command = Command::new(command);
         args.iter().for_each(|arg| {
             command.arg(arg);
         });
-        command.arg(last_arg);
         let command = command.output().expect("Failed to execute command");
         if command.status.success() {
             Ok(String::from_utf8_lossy(&command.stdout).to_string())
