@@ -5,12 +5,14 @@ use serde::{Deserialize, Serialize};
 
 use crate::actions::basic::BasicAction;
 use crate::actions::clipboard::ClipboardAction;
+use crate::actions::core::CoreAction;
 use crate::actions::openai::OpenAIAction;
 use crate::config::Config;
 use crate::hotkey::ShortcutResult;
 
 mod basic;
 mod clipboard;
+mod core;
 mod openai;
 
 /// Actions are synchronous functions that take some input and return some output, they can do
@@ -71,6 +73,14 @@ pub enum Action {
         /// Step index relative from current step to go to in the list of actions (starts at 0).
         step_relative: String,
     },
+    /// Spawn a system command. Returns the result of the command.
+    Spawn {
+        /// Command to execute.
+        command: String,
+        /// Arguments to pass to the command. Default is empty list.
+        #[serde(default)]
+        args: Vec<String>,
+    },
 
     /// Print the input to the console. Returns input.
     PrintConsole {
@@ -97,15 +107,6 @@ pub enum Action {
         content: String,
     },
 
-    /// Spawn a system command. Returns the result of the command.
-    Spawn {
-        /// Command to execute.
-        command: String,
-        /// Arguments to pass to the command. Default is empty list.
-        #[serde(default)]
-        args: Vec<String>,
-    },
-
     /// Ask something to ChatGPT. Returns the answer from ChatGPT.
     #[serde(rename = "ask_chatgpt")]
     AskChatGPT {
@@ -126,97 +127,37 @@ impl Action {
         variables: &mut HashMap<String, String>,
     ) -> anyhow::Result<ShortcutResult> {
         match self {
-            Action::Debug => {
-                print!("\n\n");
-                println!("###########");
-                println!("## DEBUG ##");
-                println!("###########");
-                print!(
-                    "\nconfig={config:#?}\n\ninput_str={input_str:#?}\nvariables={variables:#?}"
-                );
-                print!("\n\n###########\n\n");
-                Ok(ShortcutResult::Success(input_str.to_string()))
-            }
+            Action::Debug => CoreAction::debug(config, input_str, variables),
             Action::SetVariable { name, value } => {
-                if name.to_lowercase() == "input" {
-                    Ok(ShortcutResult::Success(value.to_string()))
-                } else {
-                    variables.insert(
-                        name.to_lowercase().to_string(),
-                        replace_variables_tag(value, input_str, variables),
-                    );
-                    Ok(ShortcutResult::Success(input_str.to_string()))
-                }
+                CoreAction::set_variable(input_str, variables, name, value)
             }
             Action::DeleteVariable { name } => {
-                if name.to_lowercase() == "input" {
-                    Ok(ShortcutResult::Success("".to_string()))
-                } else {
-                    variables.remove(name.to_lowercase().as_str());
-                    Ok(ShortcutResult::Success(input_str.to_string()))
-                }
+                CoreAction::delete_variable(input_str, variables, name)
             }
-            Action::Sleep { duration_ms } => {
-                BasicAction::sleep(&replace_variables_tag(duration_ms, input_str, variables))?;
-                Ok(ShortcutResult::Success(input_str.to_string()))
-            }
-            Action::EndProgram => Ok(ShortcutResult::EndProgram(input_str.to_string())),
-            Action::GoToStep { step } => {
-                let step = replace_variables_tag(step, input_str, variables)
-                    .parse::<usize>()
-                    .context("step must be a valid integer")?;
-                Ok(ShortcutResult::GoToStep {
-                    output: input_str.to_string(),
-                    step,
-                })
-            }
+            Action::Sleep { duration_ms } => BasicAction::sleep(input_str, variables, duration_ms),
+            Action::EndProgram => CoreAction::end_program(input_str),
+            Action::GoToStep { step } => CoreAction::go_to_step(input_str, variables, step),
             Action::GoToStepRelative { step_relative } => {
-                let step_relative = replace_variables_tag(step_relative, input_str, variables);
-                let sign_is_positive = !step_relative.contains("-");
-                let step_relative = step_relative.replace("-", "").replace("+", "");
-                let step_relative = step_relative
-                    .parse::<usize>()
-                    .context("step must be a valid integer")?;
-                Ok(ShortcutResult::GoToStepRelative {
-                    output: input_str.to_string(),
-                    step_relative,
-                    sign_is_positive,
-                })
+                CoreAction::go_to_step_relative(input_str, variables, step_relative)
+            }
+            Action::Spawn { command, args } => {
+                BasicAction::spawn(input_str, variables, command, args)
             }
 
             Action::PrintConsole { content } => {
-                BasicAction::print_console(&replace_variables_tag(content, input_str, variables))?;
-                Ok(ShortcutResult::Success(input_str.to_string()))
+                BasicAction::print_console(input_str, variables, content)
             }
             Action::ShowDialog { title, body } => {
-                BasicAction::show_dialog(
-                    &replace_variables_tag(title, input_str, variables),
-                    &replace_variables_tag(body, input_str, variables),
-                )?;
-                Ok(ShortcutResult::Success(input_str.to_string()))
+                BasicAction::show_dialog(input_str, variables, title, body)
             }
 
-            Action::ReadClipboard => Ok(ShortcutResult::Success(
-                ClipboardAction::get_clipboard_content()?,
-            )),
+            Action::ReadClipboard => ClipboardAction::get_clipboard_content(),
             Action::WriteClipboard { content } => {
-                ClipboardAction::set_clipboard_content(&replace_variables_tag(
-                    content, input_str, variables,
-                ))?;
-                Ok(ShortcutResult::Success(input_str.to_string()))
+                ClipboardAction::set_clipboard_content(input_str, variables, content)
             }
-
-            Action::Spawn { command, args } => Ok(ShortcutResult::Success(BasicAction::spawn(
-                &replace_variables_tag(command, input_str, variables),
-                &replace_variables_tag_vec(args, input_str, variables),
-            )?)),
 
             Action::AskChatGPT { pre_prompt, prompt } => {
-                Ok(ShortcutResult::Success(OpenAIAction::ask_chat_gpt(
-                    config,
-                    &replace_variables_tag(pre_prompt, input_str, variables),
-                    &replace_variables_tag(prompt, input_str, variables),
-                )?))
+                OpenAIAction::ask_chat_gpt(config, input_str, variables, pre_prompt, prompt)
             }
         }
     }
@@ -230,7 +171,7 @@ fn input_tag_str() -> String {
     "{{input}}".to_string()
 }
 
-fn replace_variables_tag(
+pub fn replace_variables_tag(
     str: &str,
     input_str: &str,
     variables: &HashMap<String, String>,
@@ -243,7 +184,7 @@ fn replace_variables_tag(
     str
 }
 
-fn replace_variables_tag_vec(
+pub fn replace_variables_tag_vec(
     vec_of_str: &Vec<String>,
     input_str: &str,
     variables: &HashMap<String, String>,

@@ -1,16 +1,28 @@
+use std::collections::HashMap;
 use std::env;
 
 use anyhow::anyhow;
 use reqwest::blocking::Client as HttpClient;
 use serde::{Deserialize, Serialize};
 
+use crate::actions::replace_variables_tag;
 use crate::config::Config;
+use crate::hotkey::ShortcutResult;
 
 pub struct OpenAIAction;
 
 impl OpenAIAction {
-    pub fn ask_chat_gpt(config: &Config, pre_prompt: &str, prompt: &str) -> anyhow::Result<String> {
-        ask_chatgpt(pre_prompt, prompt, config.openai_api_key.as_str())
+    pub fn ask_chat_gpt(
+        config: &Config,
+        input_str: &str,
+        variables: &HashMap<String, String>,
+        pre_prompt: &str,
+        prompt: &str,
+    ) -> anyhow::Result<ShortcutResult> {
+        let pre_prompt = replace_variables_tag(pre_prompt, input_str, variables);
+        let prompt = replace_variables_tag(prompt, input_str, variables);
+        let res = ask_chatgpt(&pre_prompt, &prompt, config.openai_api_key.as_str())?;
+        Ok(ShortcutResult::Success(res))
     }
 }
 
