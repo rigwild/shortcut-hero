@@ -8,6 +8,7 @@ use inputbot::KeybdKey;
 use serde::{Deserialize, Serialize};
 
 use crate::actions::Action;
+use crate::evaluation::{NumberOperator, SerializedComparison, StringOperator};
 use crate::hotkey::{KeyboardKey, Shortcut};
 
 const CONFIG_FILE_NAME: &'static str = "shortcut-hero.json";
@@ -78,10 +79,12 @@ fn init_config_file() {
     save_config_to_file(&Config {
         openai_api_key: "sk-...".to_string(),
         keyboard_shortcuts: vec![
-            // When pressing `Ctrl + D`, set the variables `city1` and `city2` to `Bordeaux` and `Lyon`
-            // respectively, then check if they are equal.
-            // If they are, print `If was true!` to the console, else print `If was false!`.
+            //
+            //
+            //
             Shortcut::new(
+                "When pressing `D`, set the variables `city1` and `city2` to `Bordeaux` and `Lyon` respectively, \
+                then check if they are equal. If they are, print `If was true!` to the console, else print `If was false!`.",
                 vec![KeyboardKey(KeybdKey::DKey)],
                 vec![
                     Action::Debug,
@@ -111,10 +114,12 @@ fn init_config_file() {
                     },
                 ],
             ),
-
-            // When pressing `Ctrl + B`, read the clipboard, print it to the console and
-            // show a dialog box with the clipboard content
+            //
+            //
+            //
             Shortcut::new(
+                "When pressing `Ctrl + B`, read the clipboard, print debug infos to \
+                console and show a dialog box with the clipboard content",
                 vec![
                     KeyboardKey(KeybdKey::LControlKey),
                     KeyboardKey(KeybdKey::BKey),
@@ -128,9 +133,11 @@ fn init_config_file() {
                     },
                 ],
             ),
-
-            // When pressing `Ctrl + M`, print `Loop iteration 0` to `Loop iteration 4` in the console
+            //
+            //
+            //
             Shortcut::new(
+                "When pressing `Ctrl + M`, print `Loop iteration 0` to `Loop iteration 4` in the console",
                 vec![
                     KeyboardKey(KeybdKey::LControlKey),
                     KeyboardKey(KeybdKey::MKey),

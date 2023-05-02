@@ -2,6 +2,7 @@
   "openai_api_key": "sk-...",
   "keyboard_shortcuts": [
     {
+      "description": "When pressing `D`, set the variables `city1` and `city2` to `Bordeaux` and `Lyon` respectively, then check if they are equal. If they are, print `If was true!` to the console, else print `If was false!`.",
       "keys": ["DKey"],
       "actions": [
         {
@@ -23,7 +24,7 @@
           "a": "{{city1}}",
           "b": "{{city2}}",
           "step_true": "+1",
-          "step_false": "+2"
+          "step_false": "+3"
         },
         {
           "action": "print_console",
@@ -38,8 +39,8 @@
         }
       ]
     },
-
     {
+      "description": "When pressing `Ctrl + B`, read the clipboard, print debug infos to console and show a dialog box with the clipboard content",
       "keys": ["LControlKey", "BKey"],
       "actions": [
         {
@@ -55,8 +56,8 @@
         }
       ]
     },
-
     {
+      "description": "When pressing `Ctrl + M`, print `Loop iteration 0` to `Loop iteration 4` in the console",
       "keys": ["LControlKey", "MKey"],
       "actions": [
         {

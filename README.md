@@ -51,6 +51,7 @@ Here is a [configuration file example](./shortcut-hero.example.json).
   "openai_api_key": "sk-...",
   "keyboard_shortcuts": [
     {
+      "description": "When pressing `D`, set the variables `city1` and `city2` to `Bordeaux` and `Lyon` respectively, then check if they are equal. If they are, print `If was true!` to the console, else print `If was false!`.",
       "keys": ["DKey"],
       "actions": [
         {
@@ -69,10 +70,10 @@ Here is a [configuration file example](./shortcut-hero.example.json).
         {
           "action": "if_else_relative",
           "operation": "string_equals",
-          "a": "{{i}}",
-          "b": "5",
-          "step_true": "-2",
-          "step_false": "+1"
+          "a": "{{city1}}",
+          "b": "{{city2}}",
+          "step_true": "+1",
+          "step_false": "+3"
         },
         {
           "action": "print_console",
@@ -87,8 +88,8 @@ Here is a [configuration file example](./shortcut-hero.example.json).
         }
       ]
     },
-
     {
+      "description": "When pressing `Ctrl + B`, read the clipboard, print debug infos to console and show a dialog box with the clipboard content",
       "keys": ["LControlKey", "BKey"],
       "actions": [
         {
@@ -104,8 +105,8 @@ Here is a [configuration file example](./shortcut-hero.example.json).
         }
       ]
     },
-
     {
+      "description": "When pressing `Ctrl + M`, print `Loop iteration 0` to `Loop iteration 4` in the console",
       "keys": ["LControlKey", "MKey"],
       "actions": [
         {
@@ -666,7 +667,7 @@ You will need to add your action in the [`Action` enum](./src/actions/mod.rs) to
 
 Be creative! ✌️
 
-### Ideas of actions
+## Ideas of actions
 
 - Read the current OS time
 - Get the current weather from some API
@@ -679,6 +680,10 @@ Be creative! ✌️
 - Write the input to a file
 - Star this GitHub repository (😉)
 
-### License
+## TypeScript bindings
+
+If you are looking to create a configuration generator front-end, TypeScript bindings are provided in the [`bindings`](./bindings) directory.
+
+## License
 
 [The MIT License](./LICENSE)

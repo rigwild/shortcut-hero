@@ -1,7 +1,7 @@
 [package]
 name = "shortcut-hero"
 description = "Bind keyboard shortcuts to any actions"
-version = "0.1.2"
+version = "0.1.3"
 edition = "2021"
 authors = ["rigwild <me@rigwild.dev>"]
 repository = "https://github.com/rigwild/shortcut-hero"
@@ -19,3 +19,4 @@ reqwest = { version = "0.11", features = ["json", "blocking"] }
 serde_json = "1.0.96"
 native-dialog = { version = "0.6.3", features = ["windows_dpi_awareness", "windows_visual_styles"] }
 copypasta = "0.8.2"
+ts-rs = { version = "6.2.1", features = ["format"] }

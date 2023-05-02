@@ -11,13 +11,27 @@ use crate::Config;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Shortcut {
+    #[serde(default)]
+    pub description: String,
     pub keys: Vec<KeyboardKey>,
     pub actions: Vec<Action>,
 }
 
 impl Shortcut {
-    pub fn new(keys: Vec<KeyboardKey>, actions: Vec<Action>) -> Self {
-        Shortcut { keys, actions }
+    pub fn new(description: &str, keys: Vec<KeyboardKey>, actions: Vec<Action>) -> Self {
+        Shortcut {
+            description: description.to_string(),
+            keys,
+            actions,
+        }
+    }
+
+    pub fn new_no_description(keys: Vec<KeyboardKey>, actions: Vec<Action>) -> Self {
+        Shortcut {
+            description: "".to_string(),
+            keys,
+            actions,
+        }
     }
 
     pub fn trigger(&self, config: &Config) -> anyhow::Result<Vec<String>> {
