@@ -3,7 +3,7 @@ use std::process::Command;
 
 use anyhow::{anyhow, Context};
 
-use crate::actions::{replace_variables_tag, replace_variables_tag_vec};
+use crate::evaluation::{replace_variables_tag, replace_variables_tag_vec, Comparison};
 use crate::hotkey::ShortcutResult;
 use crate::Config;
 
@@ -98,12 +98,14 @@ impl CoreAction {
         let operation = replace_variables_tag(operation, input_str, variables);
         let a = replace_variables_tag(a, input_str, variables);
         let b = replace_variables_tag(b, input_str, variables);
+        let comparison = Comparison::from(input_str, variables, &operation, &a, &b)?;
+
         let step_true = replace_variables_tag(step_true, input_str, variables);
         let step_true = parse_step(&step_true)?;
         let step_false = replace_variables_tag(step_false, input_str, variables);
         let step_false = parse_step(&step_false)?;
 
-        let step = if evaluate_condition(&operation, &a, &b)? {
+        let step = if comparison.evaluate() {
             step_true
         } else {
             step_false
@@ -126,12 +128,14 @@ impl CoreAction {
         let operation = replace_variables_tag(operation, input_str, variables);
         let a = replace_variables_tag(a, input_str, variables);
         let b = replace_variables_tag(b, input_str, variables);
+        let comparison = Comparison::from(input_str, variables, &operation, &a, &b)?;
+
         let step_true = replace_variables_tag(step_true, input_str, variables);
         let (step_true, step_true_sign_is_positive) = parse_step_relative(&step_true)?;
         let step_false = replace_variables_tag(step_false, input_str, variables);
         let (step_false, step_false_sign_is_positive) = parse_step_relative(&step_false)?;
 
-        let (step, sign_is_positive) = if evaluate_condition(&operation, &a, &b)? {
+        let (step, sign_is_positive) = if comparison.evaluate() {
             (step_true, step_true_sign_is_positive)
         } else {
             (step_false, step_false_sign_is_positive)
@@ -209,32 +213,4 @@ fn parse_step_relative(step: &str) -> anyhow::Result<(usize, bool)> {
         .parse::<usize>()
         .context("step must be a valid integer")?;
     Ok((step, sign_is_positive))
-}
-
-fn evaluate_condition(operation: &str, a: &str, b: &str) -> anyhow::Result<bool> {
-    // String operations
-    match operation {
-        "str_equals" => return Ok(a == b),
-        "str_not_equals" => return Ok(a != b),
-        "str_contains" => return Ok(a.contains(b)),
-        "str_not_contains" => return Ok(!a.contains(b)),
-        "str_starts_with" => return Ok(a.starts_with(b)),
-        "str_ends_with" => return Ok(a.ends_with(b)),
-        "str_is_empty" => return Ok(a.is_empty()),
-        "str_is_not_empty" => return Ok(!a.is_empty()),
-        _ => {}
-    }
-
-    // Float operations
-    let a: f64 = a.parse::<f64>().unwrap();
-    let b: f64 = b.parse::<f64>().unwrap();
-    match operation {
-        "==" => Ok(a == b),
-        "!=" => Ok(a != b),
-        ">" => Ok(a > b),
-        "<" => Ok(a < b),
-        ">=" => Ok(a >= b),
-        "<=" => Ok(a <= b),
-        _ => Err(anyhow::anyhow!("Unknown operation: {}", operation)),
-    }
 }

@@ -5,8 +5,8 @@ use anyhow::anyhow;
 use reqwest::blocking::Client as HttpClient;
 use serde::{Deserialize, Serialize};
 
-use crate::actions::replace_variables_tag;
 use crate::config::Config;
+use crate::evaluation::replace_variables_tag;
 use crate::hotkey::ShortcutResult;
 
 pub struct OpenAIAction;

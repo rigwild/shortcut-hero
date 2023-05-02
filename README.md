@@ -68,11 +68,11 @@ Here is a [configuration file example](./shortcut-hero.example.json).
         },
         {
           "action": "if_else_relative",
-          "operation": "str_equals",
-          "a": "{{city1}}",
-          "b": "{{city2}}",
-          "step_true": "+1",
-          "step_false": "+2"
+          "operation": "string_equals",
+          "a": "{{i}}",
+          "b": "5",
+          "step_true": "-2",
+          "step_false": "+1"
         },
         {
           "action": "print_console",
@@ -363,14 +363,14 @@ Operation to perform on `A` and `B` to determine if the condition is true.
   - `>=`
 
 - String comparisons:
-  - `str_equals`
-  - `str_not_equals
-  - `str_contains`
-  - `str_not_contains`,
-  - `str_starts_with`
-  - `str_ends_with`
-  - `str_is_empty` (only on `A`)
-  - `str_is_not_empty` (only on `A`)
+  - `string_equals`
+  - `string_not_equals`
+  - `string_contains`
+  - `string_not_contains`,
+  - `string_starts_with`
+  - `string_ends_with`
+  - `string_is_empty` (only on `A`)
+  - `string_is_not_empty` (only on `A`)
 
 Go to step 8 if `A` is equal to `B`, otherwise go to step 12.
 
@@ -391,7 +391,7 @@ With `city_a = Bordeaux`, `city_a = Lyon`, `step_success = 8`, `step_failure = 1
 ```json
 {
   "action": "if_else",
-  "operation": "str_equals",
+  "operation": "string_equals",
   "a": "{{city_a}}",
   "b": "{{city_b}}",
   "step_true": "{{step_success}}",
@@ -404,7 +404,7 @@ Go 2 steps forward (the `+` symbol is optional) relative from current step if `A
 ```json
 {
   "action": "if_else_relative",
-  "operation": "str_contains",
+  "operation": "string_contains",
   "a": "hello this is a string",
   "b": "this is",
   "step_true": "+2",

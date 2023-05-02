@@ -93,13 +93,15 @@ fn init_config_file() {
                         name: "city2".to_string(),
                         value: "Lyon".to_string(),
                     },
-                    Action::IfElseRelative {
-                        operation: "str_equals".to_string(),
-                        a: "{{city1}}".to_string(),
-                        b: "{{city2}}".to_string(),
-                        step_true: "+1".to_string(),
-                        step_false: "+2".to_string(),
-                    },
+                    Action::new_if_else_relative(
+                        SerializedComparison {
+                            operation: StringOperator::Equals.to_string(),
+                            a: "{{city1}}".to_string(),
+                            b: "{{city2}}".to_string(),
+                        },
+                        "+1",
+                        "+3",
+                    ),
                     Action::PrintConsole {
                         content: "If was true!".to_string(),
                     },
@@ -145,13 +147,15 @@ fn init_config_file() {
                         name: "i".to_string(),
                         amount: "1".to_string(),
                     },
-                    Action::IfElseRelative {
-                        operation: "<".to_string(),
-                        a: "{{i}}".to_string(),
-                        b: "5".to_string(),
-                        step_true: "-2".to_string(),
-                        step_false: "+1".to_string(),
-                    },
+                    Action::new_if_else_relative(
+                        SerializedComparison {
+                            operation: NumberOperator::LessThan.to_string(),
+                            a: "{{i}}".to_string(),
+                            b: "5".to_string(),
+                        },
+                        "-2",
+                        "+1",
+                    ),
                     Action::PrintConsole {
                         content: "End of the loop!".to_string(),
                     },

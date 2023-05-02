@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use native_dialog::{MessageDialog, MessageType};
 
-use crate::actions::replace_variables_tag;
+use crate::evaluation::replace_variables_tag;
 use crate::hotkey::ShortcutResult;
 
 pub struct BasicAction;

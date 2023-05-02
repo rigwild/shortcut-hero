@@ -19,7 +19,7 @@
         },
         {
           "action": "if_else_relative",
-          "operation": "str_equals",
+          "operation": "string_equals",
           "a": "{{city1}}",
           "b": "{{city2}}",
           "step_true": "+1",

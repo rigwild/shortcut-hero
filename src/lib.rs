@@ -9,6 +9,7 @@ use crate::hotkey::{KeyboardKey, Shortcut};
 
 pub mod actions;
 pub mod config;
+pub mod evaluation;
 pub mod hotkey;
 
 pub fn run(config: &Config) {

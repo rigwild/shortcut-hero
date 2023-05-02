@@ -1,12 +1,14 @@
 use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
+use ts_rs::TS;
 
 use crate::actions::basic::BasicAction;
 use crate::actions::clipboard::ClipboardAction;
 use crate::actions::core::CoreAction;
 use crate::actions::openai::OpenAIAction;
 use crate::config::Config;
+use crate::evaluation::{SerializedComparison};
 use crate::hotkey::ShortcutResult;
 
 mod basic;
@@ -31,6 +33,8 @@ mod openai;
 /// your list of actions with an action that read some data as input for the next actions.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "action", rename_all = "snake_case")]
+#[derive(TS)]
+#[ts(export)]
 pub enum Action {
     /// Print the configuration, the provided input and the list of variables. Returns input.
     Debug,
@@ -97,14 +101,14 @@ pub enum Action {
         ///   - `>=`
         ///
         /// - String comparisons:
-        ///   - `str_equals`
-        ///   - `str_not_equals
-        ///   - `str_contains`
-        ///   - `str_not_contains`,
-        ///   - `str_starts_with`
-        ///   - `str_ends_with`
-        ///   - `str_is_empty` (only on `A`)
-        ///   - `str_is_not_empty` (only on `A`)
+        ///   - `string_equals`
+        ///   - `string_not_equals`
+        ///   - `string_contains`
+        ///   - `string_not_contains`,
+        ///   - `string_starts_with`
+        ///   - `string_ends_with`
+        ///   - `string_is_empty` (only on `A`)
+        ///   - `string_is_not_empty` (only on `A`)
         operation: String,
         /// Value A to compare.
         a: String,
@@ -133,14 +137,14 @@ pub enum Action {
         ///   - `>=`
         ///
         /// - String comparisons:
-        ///   - `str_equals`
-        ///   - `str_not_equals
-        ///   - `str_contains`
-        ///   - `str_not_contains`,
-        ///   - `str_starts_with`
-        ///   - `str_ends_with`
-        ///   - `str_is_empty` (only on `A`)
-        ///   - `str_is_not_empty` (only on `A`)
+        ///   - `string_equals`
+        ///   - `string_not_equals`
+        ///   - `string_contains`
+        ///   - `string_not_contains`,
+        ///   - `string_starts_with`
+        ///   - `string_ends_with`
+        ///   - `string_is_empty` (only on `A`)
+        ///   - `string_is_not_empty` (only on `A`)
         operation: String,
         /// Value A to compare.
         a: String,
@@ -210,8 +214,8 @@ impl Action {
             Action::SetVariable { name, value } => {
                 CoreAction::set_variable(input_str, variables, name, value)
             }
-            Action::IncrementVariable { name,amount } => {
-                CoreAction::increment_variable(input_str, variables, name,amount)
+            Action::IncrementVariable { name, amount } => {
+                CoreAction::increment_variable(input_str, variables, name, amount)
             }
             Action::DeleteVariable { name } => {
                 CoreAction::delete_variable(input_str, variables, name)
@@ -235,7 +239,9 @@ impl Action {
                 b,
                 step_true,
                 step_false,
-            } => CoreAction::if_else_relative(input_str, variables, operation, a, b, step_true, step_false),
+            } => CoreAction::if_else_relative(
+                input_str, variables, operation, a, b, step_true, step_false,
+            ),
             Action::Spawn { command, args } => {
                 CoreAction::spawn(input_str, variables, command, args)
             }
@@ -257,6 +263,32 @@ impl Action {
             }
         }
     }
+
+    /// Create an `if_else` action` from a comparison enum.
+    pub fn new_if_else(comparison: SerializedComparison, step_true: &str, step_false: &str) -> Action {
+        Action::IfElse {
+            operation: comparison.operation,
+            a: comparison.a,
+            b: comparison.b,
+            step_true: step_true.to_string(),
+            step_false: step_false.to_string(),
+        }
+    }
+
+    /// Create an `if_else_relative` action` from a comparison enum.
+    pub fn new_if_else_relative(
+        comparison: SerializedComparison,
+        step_true: &str,
+        step_false: &str,
+    ) -> Action {
+        Action::IfElseRelative {
+            operation: comparison.operation,
+            a: comparison.a,
+            b: comparison.b,
+            step_true: step_true.to_string(),
+            step_false: step_false.to_string(),
+        }
+    }
 }
 
 fn action_result_str() -> String {
@@ -269,28 +301,4 @@ fn input_tag_str() -> String {
 
 fn one_str() -> String {
     "1".to_string()
-}
-
-pub fn replace_variables_tag(
-    str: &str,
-    input_str: &str,
-    variables: &HashMap<String, String>,
-) -> String {
-    let mut str = str.to_string();
-    str = str.replace("{{input}}", input_str);
-    for (key, value) in variables {
-        str = str.replace(&format!("{{{{{}}}}}", key.to_lowercase()), value);
-    }
-    str
-}
-
-pub fn replace_variables_tag_vec(
-    vec_of_str: &Vec<String>,
-    input_str: &str,
-    variables: &HashMap<String, String>,
-) -> Vec<String> {
-    vec_of_str
-        .iter()
-        .map(|str| replace_variables_tag(str, input_str, variables))
-        .collect()
 }
