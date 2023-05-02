@@ -5,20 +5,40 @@
       "keys": ["DKey"],
       "actions": [
         {
-          "action": "set_variable",
-          "name": "user",
-          "value": "rigwild"
+          "action": "debug"
         },
         {
           "action": "set_variable",
-          "name": "city",
+          "name": "city1",
           "value": "Bordeaux"
         },
         {
-          "action": "debug"
+          "action": "set_variable",
+          "name": "city2",
+          "value": "Lyon"
+        },
+        {
+          "action": "if_else_relative",
+          "operation": "str_equals",
+          "a": "{{city1}}",
+          "b": "{{city2}}",
+          "step_true": "+1",
+          "step_false": "+2"
+        },
+        {
+          "action": "print_console",
+          "content": "If was true!"
+        },
+        {
+          "action": "end_program"
+        },
+        {
+          "action": "print_console",
+          "content": "If was false!"
         }
       ]
     },
+
     {
       "keys": ["LControlKey", "BKey"],
       "actions": [
@@ -32,6 +52,38 @@
           "action": "show_dialog",
           "title": "Hello World!",
           "body": "{{input}}"
+        }
+      ]
+    },
+
+    {
+      "keys": ["LControlKey", "MKey"],
+      "actions": [
+        {
+          "action": "set_variable",
+          "name": "i",
+          "value": "0"
+        },
+        {
+          "action": "print_console",
+          "content": "Loop iteration {{i}}"
+        },
+        {
+          "action": "increment_variable",
+          "name": "i",
+          "amount": "1"
+        },
+        {
+          "action": "if_else_relative",
+          "operation": "<",
+          "a": "{{i}}",
+          "b": "5",
+          "step_true": "-2",
+          "step_false": "+1"
+        },
+        {
+          "action": "print_console",
+          "content": "End of the loop!"
         }
       ]
     }

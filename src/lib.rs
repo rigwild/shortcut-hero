@@ -1,3 +1,4 @@
+use std::collections::HashSet;
 use std::ops::Deref;
 use std::sync::Arc;
 
@@ -69,7 +70,7 @@ fn register_hotkeys(config: &Config) {
 
 /// Put the modifiers at the end of the vector, else the keys combo might not work
 fn sort_keys_with_modifier_last(keys: &mut Vec<KeyboardKey>) {
-    let modifiers = [
+    let modifiers = HashSet::from([
         KeybdKey::LSuper,
         KeybdKey::RSuper,
         KeybdKey::LShiftKey,
@@ -78,11 +79,11 @@ fn sort_keys_with_modifier_last(keys: &mut Vec<KeyboardKey>) {
         KeybdKey::RControlKey,
         KeybdKey::LAltKey,
         KeybdKey::RAltKey,
-    ];
+    ]);
 
     keys.sort_by(|a, b| {
-        let a_is_modifier = modifiers.iter().find(|x| x == &&a.0).is_some();
-        let b_is_modifier = modifiers.iter().find(|x| x == &&b.0).is_some();
+        let a_is_modifier = modifiers.contains(&a.0);
+        let b_is_modifier = modifiers.contains(&b.0);
 
         match (a_is_modifier, b_is_modifier) {
             (true, true) => std::cmp::Ordering::Equal,

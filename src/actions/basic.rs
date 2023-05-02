@@ -1,10 +1,8 @@
 use std::collections::HashMap;
-use std::process::Command;
 
-use anyhow::anyhow;
 use native_dialog::{MessageDialog, MessageType};
 
-use crate::actions::{replace_variables_tag, replace_variables_tag_vec};
+use crate::actions::replace_variables_tag;
 use crate::hotkey::ShortcutResult;
 
 pub struct BasicAction;
@@ -47,31 +45,5 @@ impl BasicAction {
             .show_alert()
             .unwrap();
         Ok(ShortcutResult::Success(input_str.to_string()))
-    }
-
-    pub fn spawn(
-        input_str: &str,
-        variables: &HashMap<String, String>,
-        command: &str,
-        args: &Vec<String>,
-    ) -> anyhow::Result<ShortcutResult> {
-        let command = replace_variables_tag(command, input_str, variables);
-        let args = replace_variables_tag_vec(args, input_str, variables);
-
-        let mut command = Command::new(command);
-        args.iter().for_each(|arg| {
-            command.arg(arg);
-        });
-        let command = command.output().expect("Failed to execute command");
-        if command.status.success() {
-            Ok(ShortcutResult::Success(
-                String::from_utf8_lossy(&command.stdout).to_string(),
-            ))
-        } else {
-            Err(anyhow!(
-                "Command failed: {}",
-                String::from_utf8_lossy(&command.stderr)
-            ))
-        }
     }
 }

@@ -78,20 +78,40 @@ fn init_config_file() {
     save_config_to_file(&Config {
         openai_api_key: "sk-...".to_string(),
         keyboard_shortcuts: vec![
+            // When pressing `Ctrl + D`, set the variables `city1` and `city2` to `Bordeaux` and `Lyon`
+            // respectively, then check if they are equal.
+            // If they are, print `If was true!` to the console, else print `If was false!`.
             Shortcut::new(
                 vec![KeyboardKey(KeybdKey::DKey)],
                 vec![
+                    Action::Debug,
                     Action::SetVariable {
-                        name: "user".to_string(),
-                        value: "rigwild".to_string(),
-                    },
-                    Action::SetVariable {
-                        name: "city".to_string(),
+                        name: "city1".to_string(),
                         value: "Bordeaux".to_string(),
                     },
-                    Action::Debug,
+                    Action::SetVariable {
+                        name: "city2".to_string(),
+                        value: "Lyon".to_string(),
+                    },
+                    Action::IfElseRelative {
+                        operation: "str_equals".to_string(),
+                        a: "{{city1}}".to_string(),
+                        b: "{{city2}}".to_string(),
+                        step_true: "+1".to_string(),
+                        step_false: "+2".to_string(),
+                    },
+                    Action::PrintConsole {
+                        content: "If was true!".to_string(),
+                    },
+                    Action::EndProgram,
+                    Action::PrintConsole {
+                        content: "If was false!".to_string(),
+                    },
                 ],
             ),
+
+            // When pressing `Ctrl + B`, read the clipboard, print it to the console and
+            // show a dialog box with the clipboard content
             Shortcut::new(
                 vec![
                     KeyboardKey(KeybdKey::LControlKey),
@@ -103,6 +123,37 @@ fn init_config_file() {
                     Action::ShowDialog {
                         title: "Hello World!".to_string(),
                         body: "{{input}}".to_string(),
+                    },
+                ],
+            ),
+
+            // When pressing `Ctrl + M`, print `Loop iteration 0` to `Loop iteration 4` in the console
+            Shortcut::new(
+                vec![
+                    KeyboardKey(KeybdKey::LControlKey),
+                    KeyboardKey(KeybdKey::MKey),
+                ],
+                vec![
+                    Action::SetVariable {
+                        name: "i".to_string(),
+                        value: "0".to_string(),
+                    },
+                    Action::PrintConsole {
+                        content: "Loop iteration {{i}}".to_string(),
+                    },
+                    Action::IncrementVariable {
+                        name: "i".to_string(),
+                        amount: "1".to_string(),
+                    },
+                    Action::IfElseRelative {
+                        operation: "<".to_string(),
+                        a: "{{i}}".to_string(),
+                        b: "5".to_string(),
+                        step_true: "-2".to_string(),
+                        step_false: "+1".to_string(),
+                    },
+                    Action::PrintConsole {
+                        content: "End of the loop!".to_string(),
                     },
                 ],
             ),

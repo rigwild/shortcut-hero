@@ -1,6 +1,5 @@
 use std::collections::HashMap;
 
-use anyhow::Context;
 use serde::{Deserialize, Serialize};
 
 use crate::actions::basic::BasicAction;
@@ -42,6 +41,14 @@ pub enum Action {
         /// Value of the variable.
         value: String,
     },
+    /// Increment the value of a variable. Returns input.
+    IncrementVariable {
+        /// Name of the variable to increment.
+        name: String,
+        /// Integer value to increment the variable by, can be negative. Default is `1`.
+        #[serde(default = "one_str")]
+        amount: String,
+    },
     /// Delete a variable. Returns input (if the deleted variable is `input`, returns nothing).
     DeleteVariable {
         /// Name of the variable to clear.
@@ -71,7 +78,79 @@ pub enum Action {
     /// - If the current step is 2 and the relative step is `-1`, the next step will be `1`.
     GoToStepRelative {
         /// Step index relative from current step to go to in the list of actions (starts at 0).
-        step_relative: String,
+        step: String,
+    },
+    /// Go to a given step in the list of actions (starts at 0) or another depending on condition.
+    ///
+    /// Returns input.
+    ///
+    /// Will error out if the step is out of bounds.
+    IfElse {
+        /// Operation to perform on `A` and `B` to determine if the condition is true.
+        ///
+        /// - Real numbers comparisons:
+        ///   - `==`
+        ///   - `!=`
+        ///   - `<`
+        ///   - `<=`
+        ///   - `>`
+        ///   - `>=`
+        ///
+        /// - String comparisons:
+        ///   - `str_equals`
+        ///   - `str_not_equals
+        ///   - `str_contains`
+        ///   - `str_not_contains`,
+        ///   - `str_starts_with`
+        ///   - `str_ends_with`
+        ///   - `str_is_empty` (only on `A`)
+        ///   - `str_is_not_empty` (only on `A`)
+        operation: String,
+        /// Value A to compare.
+        a: String,
+        /// Value B to compare. Defaults to empty string (useful for operation only on `A`).
+        #[serde(default)]
+        b: String,
+        /// Step index to go to in the list of actions (starts at 0) if condition is true.
+        step_true: String,
+        /// Step index to go to in the list of actions (starts at 0) if condition is false.
+        step_false: String,
+    },
+    /// Go to a given step in the list of actions (starts at 0) or another depending on condition.
+    ///
+    /// Returns input.
+    ///
+    /// Will error out if the step is out of bounds.
+    IfElseRelative {
+        /// Operation to perform on `A` and `B` to determine if the condition is true.
+        ///
+        /// - Real numbers comparisons:
+        ///   - `==`
+        ///   - `!=`
+        ///   - `<`
+        ///   - `<=`
+        ///   - `>`
+        ///   - `>=`
+        ///
+        /// - String comparisons:
+        ///   - `str_equals`
+        ///   - `str_not_equals
+        ///   - `str_contains`
+        ///   - `str_not_contains`,
+        ///   - `str_starts_with`
+        ///   - `str_ends_with`
+        ///   - `str_is_empty` (only on `A`)
+        ///   - `str_is_not_empty` (only on `A`)
+        operation: String,
+        /// Value A to compare.
+        a: String,
+        /// Value B to compare. Defaults to empty string (useful for operation only on `A`).
+        #[serde(default)]
+        b: String,
+        /// Step index to go to in the list of actions (starts at 0) if condition is true.
+        step_true: String,
+        /// Step index to go to in the list of actions (starts at 0) if condition is false.
+        step_false: String,
     },
     /// Spawn a system command. Returns the result of the command.
     Spawn {
@@ -131,17 +210,34 @@ impl Action {
             Action::SetVariable { name, value } => {
                 CoreAction::set_variable(input_str, variables, name, value)
             }
+            Action::IncrementVariable { name,amount } => {
+                CoreAction::increment_variable(input_str, variables, name,amount)
+            }
             Action::DeleteVariable { name } => {
                 CoreAction::delete_variable(input_str, variables, name)
             }
             Action::Sleep { duration_ms } => BasicAction::sleep(input_str, variables, duration_ms),
             Action::EndProgram => CoreAction::end_program(input_str),
             Action::GoToStep { step } => CoreAction::go_to_step(input_str, variables, step),
-            Action::GoToStepRelative { step_relative } => {
-                CoreAction::go_to_step_relative(input_str, variables, step_relative)
+            Action::GoToStepRelative { step } => {
+                CoreAction::go_to_step_relative(input_str, variables, step)
             }
+            Action::IfElse {
+                operation,
+                a,
+                b,
+                step_true,
+                step_false,
+            } => CoreAction::if_else(input_str, variables, operation, a, b, step_true, step_false),
+            Action::IfElseRelative {
+                operation,
+                a,
+                b,
+                step_true,
+                step_false,
+            } => CoreAction::if_else_relative(input_str, variables, operation, a, b, step_true, step_false),
             Action::Spawn { command, args } => {
-                BasicAction::spawn(input_str, variables, command, args)
+                CoreAction::spawn(input_str, variables, command, args)
             }
 
             Action::PrintConsole { content } => {
@@ -169,6 +265,10 @@ fn action_result_str() -> String {
 
 fn input_tag_str() -> String {
     "{{input}}".to_string()
+}
+
+fn one_str() -> String {
+    "1".to_string()
 }
 
 pub fn replace_variables_tag(

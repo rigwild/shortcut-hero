@@ -29,7 +29,7 @@ impl Shortcut {
         let mut full_actions_result: Vec<String> = Vec::new();
         let mut i_action = 0;
         while i_action < self.actions.len() {
-            let i_action_start = i_action;
+            let mut used_go_to = false;
 
             let action = &self.actions[i_action];
             let shortcut_result = action.run(config, &input_str, &mut variables)?;
@@ -38,6 +38,7 @@ impl Shortcut {
                 ShortcutResult::Success(output) => {
                     input_str = output.clone();
                 }
+
                 ShortcutResult::GoToStep { output, step } => {
                     input_str = output.clone();
                     if step >= self.actions.len() {
@@ -49,25 +50,28 @@ impl Shortcut {
                         ))?;
                     }
                     i_action = step;
+                    used_go_to = true;
                 }
+
                 ShortcutResult::GoToStepRelative {
                     output,
-                    step_relative,
+                    step,
                     sign_is_positive,
                 } => {
                     input_str = output.clone();
-                    let step_absolute: usize = step_relative as usize;
+                    let step_absolute: usize = step as usize;
                     if !sign_is_positive {
                         if step_absolute > i_action {
                             return Err(anyhow!(
                                 "Step to go to [from {} to {} (-{})] is out of bounds [0, {}] )",
                                 i_action,
                                 i_action - step_absolute,
-                                step_relative,
+                                step,
                                 self.actions.len() - 1
                             ))?;
                         } else {
                             i_action = i_action - step_absolute;
+                            used_go_to = true;
                         }
                     } else {
                         if i_action + step_absolute >= self.actions.len() {
@@ -75,17 +79,20 @@ impl Shortcut {
                                 "Step to go to [from {} to {} (+{})] is out of bounds [0, {}] )",
                                 i_action,
                                 i_action + step_absolute,
-                                step_relative,
+                                step,
                                 self.actions.len() - 1
                             ))?;
                         } else {
                             i_action = i_action + step_absolute;
+                            used_go_to = true;
                         }
                     }
                 }
+
                 ShortcutResult::EndProgram(output) => {
                     input_str = output.clone();
                     i_action = usize::MAX;
+                    used_go_to = true;
                 }
             }
             let action_result = format!("{:?}, Output: {}", action, input_str);
@@ -93,7 +100,7 @@ impl Shortcut {
             println!("[Action Run ID={trigger_id}] {action_result}");
 
             // Do not increment if one of the shortcuts changed the action index
-            if i_action_start == i_action {
+            if !used_go_to {
                 i_action += 1;
             }
         }
@@ -112,7 +119,7 @@ pub enum ShortcutResult {
     },
     GoToStepRelative {
         output: String,
-        step_relative: usize,
+        step: usize,
         sign_is_positive: bool,
     },
     EndProgram(String),

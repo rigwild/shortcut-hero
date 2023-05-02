@@ -54,20 +54,40 @@ Here is a [configuration file example](./shortcut-hero.example.json).
       "keys": ["DKey"],
       "actions": [
         {
-          "action": "set_variable",
-          "name": "user",
-          "value": "rigwild"
+          "action": "debug"
         },
         {
           "action": "set_variable",
-          "name": "city",
+          "name": "city1",
           "value": "Bordeaux"
         },
         {
-          "action": "debug"
+          "action": "set_variable",
+          "name": "city2",
+          "value": "Lyon"
+        },
+        {
+          "action": "if_else_relative",
+          "operation": "str_equals",
+          "a": "{{city1}}",
+          "b": "{{city2}}",
+          "step_true": "+1",
+          "step_false": "+2"
+        },
+        {
+          "action": "print_console",
+          "content": "If was true!"
+        },
+        {
+          "action": "end_program"
+        },
+        {
+          "action": "print_console",
+          "content": "If was false!"
         }
       ]
     },
+
     {
       "keys": ["LControlKey", "BKey"],
       "actions": [
@@ -81,6 +101,38 @@ Here is a [configuration file example](./shortcut-hero.example.json).
           "action": "show_dialog",
           "title": "Hello World!",
           "body": "{{input}}"
+        }
+      ]
+    },
+
+    {
+      "keys": ["LControlKey", "MKey"],
+      "actions": [
+        {
+          "action": "set_variable",
+          "name": "i",
+          "value": "0"
+        },
+        {
+          "action": "print_console",
+          "content": "Loop iteration {{i}}"
+        },
+        {
+          "action": "increment_variable",
+          "name": "i",
+          "amount": "1"
+        },
+        {
+          "action": "if_else_relative",
+          "operation": "<",
+          "a": "{{i}}",
+          "b": "5",
+          "step_true": "-2",
+          "step_false": "+1"
+        },
+        {
+          "action": "print_console",
+          "content": "End of the loop!"
         }
       ]
     }
@@ -115,7 +167,9 @@ Variables names are case-insensitive.
 
 The first action in the list will receive an empty string as an input. You may want to start your list of actions with an action that read some data as input for the next actions.
 
-### Debug
+### Core Actions
+
+#### Debug
 
 Print the configuration, the provided input and the list of variables. Returns input.
 
@@ -125,7 +179,7 @@ Print the configuration, the provided input and the list of variables. Returns i
 }
 ```
 
-### Set Variable
+#### Set Variable
 
 Set the value of a variable. Do not use tags like `{{input}}` or `{{my_variable}}` for the name of the variable, use the variable name directly `input` or `my_variable`. Otherwise, value can contain tags like `{{input}}` or `{{my_variable}}`.
 
@@ -152,7 +206,43 @@ With `input = rigwild`, `city = Bordeaux`
 }
 ```
 
-### Delete Variable
+#### Increment Variable
+
+Increment the value of a variable. Returns input.
+
+- Parameter `amount` must be a string containing a valid integer (can be negative). Default is `1`.
+
+Increment the variable `count` by 1.
+
+```json
+{
+  "action": "increment_variable",
+  "name": "count"
+}
+```
+
+Increment the variable `count` by 5.\
+With `inc = 10`
+
+```json
+{
+  "action": "increment_variable",
+  "name": "count",
+  "amount": "{{inc}}"
+}
+```
+
+Decrement the variable `i` by 1.
+
+```json
+{
+  "action": "increment_variable",
+  "name": "i",
+  "amount": "-1"
+}
+```
+
+#### Delete Variable
 
 Delete a variable. Returns input (if the deleted variable is `input`, returns nothing).
 
@@ -163,7 +253,7 @@ Delete a variable. Returns input (if the deleted variable is `input`, returns no
 }
 ```
 
-### Sleep
+#### Sleep
 
 Wait for a given duration. Returns input.
 
@@ -188,7 +278,7 @@ With `wait_time = 5000`
 }
 ```
 
-### End Program
+#### End Program
 
 End the program.
 
@@ -198,13 +288,13 @@ End the program.
 }
 ```
 
-### Go To Step
+#### Go To Step and Go To Step Relative
 
 Go to a given step in the list of actions (starts at 0). Returns input.
 
 Will error out if the step is out of bounds.
 
-- Parameter `step` must be a string containing a valid positive integer.
+- Parameter `step` must be a string containing a valid integer.
 
 Go to step 0.
 
@@ -225,24 +315,16 @@ With `my_step = 5`
 }
 ```
 
-### Go To Step Relative
-
-Go to a given step in the list of actions relative from the current step. Returns input.
-
-Will error out if the step is out of bounds.
-
-- Parameter `step` must be a string containing a valid positive integer.
-
-Go 2 steps ahead relative from the current step.
+Go 2 steps forward relative from the current step (the `+` symbol is optional).
 
 ```json
 {
   "action": "go_to_step_relative",
-  "step_relative": "2"
+  "step_relative": "+2"
 }
 ```
 
-Go 1 step behind relative from the current step.
+Go 1 step backward relative from the current step.
 
 ```json
 {
@@ -251,7 +333,7 @@ Go 1 step behind relative from the current step.
 }
 ```
 
-Go 5 steps behind relative from the current step.\
+Go 5 steps backward relative from the current step.\
 With `my_step = -5`
 
 ```json
@@ -261,122 +343,107 @@ With `my_step = -5`
 }
 ```
 
-### Print Console
+#### If Else and If Else Relative
 
-Print the input to the console. Returns input.
+Go to a given step in the list of actions (starts at 0) or another depending on condition. Returns input.
 
-- Parameter `content` is optional, default value is `{{input}}`.
+Will error out if the step is out of bounds.
 
-Print `Hello world!` to the console.
+- Parameter `step_true` and `step_false` must be a string containing a valid integer.
+
+Operation to perform on `A` and `B` to determine if the condition is true.
+
+- Real numbers comparisons:
+
+  - `==`
+  - `!=`
+  - `<`
+  - `<=`
+  - `>`
+  - `>=`
+
+- String comparisons:
+  - `str_equals`
+  - `str_not_equals
+  - `str_contains`
+  - `str_not_contains`,
+  - `str_starts_with`
+  - `str_ends_with`
+  - `str_is_empty` (only on `A`)
+  - `str_is_not_empty` (only on `A`)
+
+Go to step 8 if `A` is equal to `B`, otherwise go to step 12.
 
 ```json
+{
+  "action": "if_else",
+  "operation": "==",
+  "a": "777",
+  "b": "777",
+  "step_true": "8",
+  "step_false": "12"
+}
+```
+
+Go to step 8 if `A` is equal to `B`, otherwise go to step 12.\
+With `city_a = Bordeaux`, `city_a = Lyon`, `step_success = 8`, `step_failure = 12`
+
+```json
+{
+  "action": "if_else",
+  "operation": "str_equals",
+  "a": "{{city_a}}",
+  "b": "{{city_b}}",
+  "step_true": "{{step_success}}",
+  "step_false": "{{step_failure}}"
+}
+```
+
+Go 2 steps forward (the `+` symbol is optional) relative from current step if `A` contains `B`, otherwise got 7 steps backward.
+
+```json
+{
+  "action": "if_else_relative",
+  "operation": "str_contains",
+  "a": "hello this is a string",
+  "b": "this is",
+  "step_true": "+2",
+  "step_false": "-7"
+}
+```
+
+Perform a loop of 5 iterations. Print `Loop iteration 0` to `Loop iteration 4` in the console
+
+```json
+{
+  "action": "set_variable",
+  "name": "i",
+  "value": "0"
+},
 {
   "action": "print_console",
-  "content": "Hello world!"
-}
-```
-
-Print `Hello world!` to the console.\
-With `input = Hello world!`
-
-```json
+  "content": "Loop iteration {{i}}"
+},
 {
-  "action": "print_console"
-}
-```
-
-Print `Hello world! I am rigwild! I live in Bordeaux` to the console.\
-With `input = rigwild`, `city = Bordeaux`
-
-```json
+  "action": "increment_variable",
+  "name": "i",
+  "amount": "1"
+},
+{
+  "action": "if_else_relative",
+  "operation": "<",
+  "a": "{{i}}",
+  "b": "5",
+  "step_true": "-2",
+  "step_false": "+1"
+},
 {
   "action": "print_console",
-  "content": "Hello world! I am {{input}}! I live in {{city}}"
+  "content": "End of the loop!"
 }
 ```
 
-### Show Dialog
-
-Show the input in a native OS dialog box. Returns input.
-
-- Parameter `title` is optional, default value is `Action Result`.
-- Parameter `body` is optional, default value is `{{input}}`.
-
-Show a dialog with title `Action Result` and body `Hello World!`.\
-With `input = Hello world!`
-
-```json
-{
-  "action": "show_dialog"
-}
-```
-
-Show a dialog with title `My Dialog Title` and body `Hello world!`.\
-With `input = Hello world!`
-
-```json
-{
-  "action": "show_dialog",
-  "title": "My Dialog Title"
-}
-```
-
-Show a dialog with title `Result of operation "12 * 11"` and body `Result from action is: 132`.\
-With `input = 132`, `math_equation = 12 * 11`
-
-```json
-{
-  "action": "show_dialog",
-  "title": "Result of operation \"{{math_equation}}\"",
-  "body": "Result from action is: {{input}}"
-}
-```
-
-### Read Clipboard
-
-Read the content of the clipboard. Returns content of the clipboard.
-
-```json
-{
-  "action": "read_clipboard"
-}
-```
-
-### Write Clipboard
-
-Write to the clipboard. Returns input.
-
-- Parameter `content` is optional, default value is `{{input}}`.
-
-Write `Hello world!` to the clipboard.
-
-```json
-{
-  "action": "write_clipboard",
-  "content": "Hello world!"
-}
-```
-
-Write `Hello world!` to the clipboard.\
-With `input = Hello world!`
-
-```json
-{
-  "action": "write_clipboard"
-}
-```
-
-Write `The quick brown fox jumps over the lazy dog` to the clipboard.\
-With `animal = dog`.
-
-```json
-{
-  "action": "write_clipboard",
-  "content": "The quick brown fox jumps over the lazy {{animal}}"
-}
-```
-
-### Spawn
+#### Spawn
 
 Spawn a system command. Returns the result of the command.
 
@@ -427,7 +494,128 @@ With `command = rm`, `path = /some/example`.
 rm -rf /some/example
 ```
 
-### Ask ChatGPT
+### Basic Actions
+
+#### Print Console
+
+Print the input to the console. Returns input.
+
+- Parameter `content` is optional, default value is `{{input}}`.
+
+Print `Hello world!` to the console.
+
+```json
+{
+  "action": "print_console",
+  "content": "Hello world!"
+}
+```
+
+Print `Hello world!` to the console.\
+With `input = Hello world!`
+
+```json
+{
+  "action": "print_console"
+}
+```
+
+Print `Hello world! I am rigwild! I live in Bordeaux` to the console.\
+With `input = rigwild`, `city = Bordeaux`
+
+```json
+{
+  "action": "print_console",
+  "content": "Hello world! I am {{input}}! I live in {{city}}"
+}
+```
+
+#### Show Dialog
+
+Show the input in a native OS dialog box. Returns input.
+
+- Parameter `title` is optional, default value is `Action Result`.
+- Parameter `body` is optional, default value is `{{input}}`.
+
+Show a dialog with title `Action Result` and body `Hello World!`.\
+With `input = Hello world!`
+
+```json
+{
+  "action": "show_dialog"
+}
+```
+
+Show a dialog with title `My Dialog Title` and body `Hello world!`.\
+With `input = Hello world!`
+
+```json
+{
+  "action": "show_dialog",
+  "title": "My Dialog Title"
+}
+```
+
+Show a dialog with title `Result of operation "12 * 11"` and body `Result from action is: 132`.\
+With `input = 132`, `math_equation = 12 * 11`
+
+```json
+{
+  "action": "show_dialog",
+  "title": "Result of operation \"{{math_equation}}\"",
+  "body": "Result from action is: {{input}}"
+}
+```
+
+### Clipboard Actions
+
+#### Read Clipboard
+
+Read the content of the clipboard. Returns content of the clipboard.
+
+```json
+{
+  "action": "read_clipboard"
+}
+```
+
+#### Write Clipboard
+
+Write to the clipboard. Returns input.
+
+- Parameter `content` is optional, default value is `{{input}}`.
+
+Write `Hello world!` to the clipboard.
+
+```json
+{
+  "action": "write_clipboard",
+  "content": "Hello world!"
+}
+```
+
+Write `Hello world!` to the clipboard.\
+With `input = Hello world!`
+
+```json
+{
+  "action": "write_clipboard"
+}
+```
+
+Write `The quick brown fox jumps over the lazy dog` to the clipboard.\
+With `animal = dog`.
+
+```json
+{
+  "action": "write_clipboard",
+  "content": "The quick brown fox jumps over the lazy {{animal}}"
+}
+```
+
+### OpenAI Actions
+
+#### Ask ChatGPT
 
 Ask something to ChatGPT. Returns the answer from ChatGPT.
 
