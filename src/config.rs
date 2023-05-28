@@ -83,7 +83,7 @@ fn init_config_file() {
             //
             //
             Shortcut::new(
-                "When pressing `D`, set the variables `city1` and `city2` to `Bordeaux` and `Lyon` respectively, \
+                "Set the variables `city1` and `city2` to `Bordeaux` and `Lyon` respectively, \
                 then check if they are equal. If they are, print `If was true!` to the console, else print `If was false!`.",
                 vec![KeyboardKey(KeybdKey::DKey)],
                 vec![
@@ -118,7 +118,7 @@ fn init_config_file() {
             //
             //
             Shortcut::new(
-                "When pressing `Ctrl + B`, read the clipboard, print debug infos to \
+                "Read the clipboard, print debug infos to \
                 console and show a dialog box with the clipboard content",
                 vec![
                     KeyboardKey(KeybdKey::LControlKey),
@@ -137,7 +137,7 @@ fn init_config_file() {
             //
             //
             Shortcut::new(
-                "When pressing `Ctrl + M`, print `Loop iteration 0` to `Loop iteration 4` in the console",
+                "Print `Loop iteration 0` to `Loop iteration 4` in the console",
                 vec![
                     KeyboardKey(KeybdKey::LControlKey),
                     KeyboardKey(KeybdKey::MKey),

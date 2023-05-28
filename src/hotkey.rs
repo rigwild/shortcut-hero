@@ -5,6 +5,7 @@ use anyhow::anyhow;
 pub use inputbot::KeybdKey;
 use rand::Rng;
 use serde::{Deserialize, Serialize};
+use ts_rs::TS;
 
 use crate::actions::Action;
 use crate::Config;
@@ -144,6 +145,8 @@ pub struct KeyboardKey(#[serde(with = "KeybdKeyDef")] pub KeybdKey);
 
 #[derive(Debug, Eq, PartialEq, Hash, Copy, Clone, Serialize, Deserialize)]
 #[serde(remote = "KeybdKey")]
+#[derive(TS)]
+#[ts(export = "enum")]
 enum KeybdKeyDef {
     BackspaceKey,
     TabKey,
@@ -267,5 +270,6 @@ enum KeybdKeyDef {
     RBracketKey,
     EqualKey,
 
+    #[ts(skip)]
     OtherKey(u64),
 }
