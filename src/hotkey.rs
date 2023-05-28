@@ -146,7 +146,7 @@ pub struct KeyboardKey(#[serde(with = "KeybdKeyDef")] pub KeybdKey);
 #[derive(Debug, Eq, PartialEq, Hash, Copy, Clone, Serialize, Deserialize)]
 #[serde(remote = "KeybdKey")]
 #[derive(TS)]
-#[ts(export = "enum")]
+#[ts(export)]
 enum KeybdKeyDef {
     BackspaceKey,
     TabKey,
