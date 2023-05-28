@@ -2,6 +2,12 @@
 
 Bind keyboard shortcuts to any actions
 
+## Configure
+
+To create your configuration, you can use the configurator at https://rigwild.github.io/shortcut-hero-configurator/
+
+![configurator demo](./demo.gif)
+
 ## Releases
 
 See [releases](/rigwild/apidoc-markdown/releases) for pre-built binaries.
